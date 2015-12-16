@@ -24,9 +24,7 @@ As of writing, I have used the following parameters:
 you shoud be able to download a file named:
 spark-notebook-master-scala-2.10.4-spark-1.5.1-hadoop-2.6.0.tar
 
-1) untar it, rename it as `spark-notebook`
-2) modify the `spark-notebook/conf/application.conf`
-3) start the notebook `./bin/spark-notebook -Dconfig.file=./conf/application.conf`
+untar it, rename it as `spark-notebook`
 
 
 ## Start it all
