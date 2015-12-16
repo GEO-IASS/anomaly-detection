@@ -374,14 +374,9 @@
       "execution_count" : 17
     } ]
   }, {
-    "metadata" : {
-      "trusted" : true,
-      "input_collapsed" : false,
-      "collapsed" : true
-    },
-    "cell_type" : "code",
-    "source" : "# Model history\nModel history is preserved, that means that you can always roll back to a ",
-    "outputs" : [ ]
+    "metadata" : { },
+    "cell_type" : "markdown",
+    "source" : "# Model history\nModel history is preserved, that means that you can always roll back to a previous model"
   }, {
     "metadata" : {
       "trusted" : true,
@@ -400,7 +395,7 @@
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 20
+      "execution_count" : 22
     } ]
   }, {
     "metadata" : {
