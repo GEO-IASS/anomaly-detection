@@ -18,5 +18,13 @@ The files loc-gowalla_totalCheckins.txt and spots.txt are samples extracted from
 The files checkins.csv and venues.csv are generated from the given data sources. In order to regenerate this files download the datasets as provided above and execute the python notebook lbsn.ipynb
 
 wget https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/locrec/gowalla-dataset.zip
+unzip gowalla-dataset.zip
+perl -pe 's/POINT\((\-?\d+\.\d+)\s+(\-?\d+\.\d+)\)/$2\t$1/g' ./gowalla-dataset/spots.txt > ./loc-gowalla_venues.csv
+
 wget https://snap.stanford.edu/data/loc-gowalla_totalCheckins.txt.gz
+gunzip -f loc-gowalla_totalCheckins.txt.gz
+mv loc-gowalla_totalCheckins.txt loc-gowalla_events.csv
+
 wget https://snap.stanford.edu/data/loc-gowalla_edges.txt.gz
+gunzip -f loc-gowalla_edges.txt.gz
+mv loc-gowalla_edges.txt loc-gowalla_users.csv

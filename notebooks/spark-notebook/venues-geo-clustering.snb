@@ -9,9 +9,9 @@
       "codemirror_mode" : "text/x-scala"
     },
     "trusted" : true,
-    "customLocalRepo" : "~/.m2/repository",
+    "customLocalRepo" : "/tmp/repository",
     "customRepos" : null,
-    "customDeps" : [ "com.datastax.spark:spark-cassandra-connector_2.10:1.5.0-M1" ],
+    "customDeps" : [ "com.datastax.spark:spark-cassandra-connector_2.10:1.6.0-M2" ],
     "customImports" : null,
     "customArgs" : null,
     "customSparkConf" : {
@@ -22,510 +22,577 @@
     }
   },
   "cells" : [ {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "24BBF12E9A2A441B972D402352DFD567"
+    },
     "cell_type" : "markdown",
     "source" : "#Clustering popular areas and venues"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "10E61DE8C4484E78B8E5B99220F22E93"
     },
     "cell_type" : "code",
     "source" : "sc.version",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "res3: String = 1.5.1\n"
+      "text" : "res72: String = 1.6.1\n"
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "1.5.1"
+        "text/html" : "1.6.1"
       },
       "output_type" : "execute_result",
-      "execution_count" : 4
+      "execution_count" : 39,
+      "time" : "Took: 484 milliseconds, at 2016-5-18 23:3"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "9C35119C06404C988DE68609A48DA0D0"
+    },
     "cell_type" : "markdown",
     "source" : "# Setting up Cassandra"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "659C7B5FE4004D2A8728557A1A20DEDF"
     },
     "cell_type" : "code",
-    "source" : "import com.datastax.spark.connector._\nimport com.datastax.spark.connector.cql._\n\n//initiate the cassandra sql context\nimport org.apache.spark.sql.cassandra.CassandraSQLContext\nval csc = new CassandraSQLContext(sc)",
+    "source" : "import com.datastax.spark.connector._\nimport com.datastax.spark.connector.cql._\n\n//initiate the cassandra sql context\nimport org.apache.spark.sql.cassandra.CassandraSQLContext\nval cc = new CassandraSQLContext(sc)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "import com.datastax.spark.connector._\nimport com.datastax.spark.connector.cql._\nimport org.apache.spark.sql.cassandra.CassandraSQLContext\ncsc: org.apache.spark.sql.cassandra.CassandraSQLContext = org.apache.spark.sql.cassandra.CassandraSQLContext@619d7512\n"
+      "text" : "import com.datastax.spark.connector._\nimport com.datastax.spark.connector.cql._\nimport org.apache.spark.sql.cassandra.CassandraSQLContext\ncc: org.apache.spark.sql.cassandra.CassandraSQLContext = org.apache.spark.sql.cassandra.CassandraSQLContext@dded76d\n"
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "org.apache.spark.sql.cassandra.CassandraSQLContext@619d7512"
+        "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 5
+      "execution_count" : 41,
+      "time" : "Took: 508 milliseconds, at 2016-5-18 23:3"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "C00A5D5EAE6B41D5AE9FC35B86A5C46F"
+    },
     "cell_type" : "markdown",
     "source" : "#Read Cassandra tables"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "AD842ED6E4324252A0018BA4BBCF865E"
     },
     "cell_type" : "code",
     "source" : "val checkins = sc.cassandraTable(\"lbsn\", \"checkins\")\nval venues   = sc.cassandraTable(\"lbsn\", \"venues\")",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "checkins: com.datastax.spark.connector.rdd.CassandraTableScanRDD[com.datastax.spark.connector.CassandraRow] = CassandraTableScanRDD[0] at RDD at CassandraRDD.scala:15\nvenues: com.datastax.spark.connector.rdd.CassandraTableScanRDD[com.datastax.spark.connector.CassandraRow] = CassandraTableScanRDD[1] at RDD at CassandraRDD.scala:15\n"
+      "text" : "checkins: com.datastax.spark.connector.rdd.CassandraTableScanRDD[com.datastax.spark.connector.CassandraRow] = CassandraTableScanRDD[190] at RDD at CassandraRDD.scala:15\nvenues: com.datastax.spark.connector.rdd.CassandraTableScanRDD[com.datastax.spark.connector.CassandraRow] = CassandraTableScanRDD[191] at RDD at CassandraRDD.scala:15\n"
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "CassandraTableScanRDD[1] at RDD at CassandraRDD.scala:15"
+        "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 6
+      "execution_count" : 42,
+      "time" : "Took: 727 milliseconds, at 2016-5-18 23:3"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "C578FD3538BA49E28A16EBEB06D30DAE"
+    },
     "cell_type" : "markdown",
     "source" : "# Some basic aggregations and queries"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "5D8A95673CEC48488CA80474B5B57453"
     },
     "cell_type" : "code",
     "source" : "checkins.count()",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "res4: Long = 138449\n"
+      "text" : "res77: Long = 1794\n"
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "138449"
+        "text/html" : "1794"
       },
       "output_type" : "execute_result",
-      "execution_count" : 7
+      "execution_count" : 43,
+      "time" : "Took: 749 milliseconds, at 2016-5-18 23:3"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "E9621B50E043428F8B98229004F59807"
     },
     "cell_type" : "code",
     "source" : "checkins.first()",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "res5: com.datastax.spark.connector.CassandraRow = CassandraRow{year: 2010, month: 7, day: 1, time: 11, uid: 74226, lat: 40.75548535, lon: -73.99116677, ts: 2010-07-01 02:00:11+0200, vid: 1365122}\n"
+      "text" : "res79: com.datastax.spark.connector.CassandraRow = CassandraRow{year: 2010, month: 7, day: 1, time: 59265, uid: 40, lat: 40.7745781069, lon: -73.8720059395, ts: 2010-07-01 02:00:00+0200, vid: 12505}\n"
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "CassandraRow{year: 2010, month: 7, day: 1, time: 11, uid: 74226, lat: 40.75548535, lon: -73.99116677, ts: 2010-07-01 02:00:11+0200, vid: 1365122}"
+        "text/html" : "CassandraRow{year: 2010, month: 7, day: 1, time: 59265, uid: 40, lat: 40.7745781069, lon: -73.8720059395, ts: 2010-07-01 02:00:00+0200, vid: 12505}"
       },
       "output_type" : "execute_result",
-      "execution_count" : 8
+      "execution_count" : 44,
+      "time" : "Took: 505 milliseconds, at 2016-5-18 23:3"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "82AF5EC2B8674172873D7AFDEFE943A3"
     },
     "cell_type" : "code",
     "source" : "venues.count()",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "res6: Long = 28699\n"
+      "text" : "res81: Long = 9141\n"
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "28699"
+        "text/html" : "9141"
       },
       "output_type" : "execute_result",
-      "execution_count" : 9
+      "execution_count" : 45,
+      "time" : "Took: 722 milliseconds, at 2016-5-18 23:3"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "EF35BA7AB45B4E2FA4F3A7DE3B4CC502"
     },
     "cell_type" : "code",
     "source" : "venues.first()",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "res7: com.datastax.spark.connector.CassandraRow = CassandraRow{vid: 492237, lat: 40.726485986, lon: -73.9922754073, name: Bohemian}\n"
+      "text" : "res83: com.datastax.spark.connector.CassandraRow = CassandraRow{vid: 3930791, lat: 40.631027023, lon: -74.0088763833, name: Rocco's Calamari}\n"
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "CassandraRow{vid: 492237, lat: 40.726485986, lon: -73.9922754073, name: Bohemian}"
+        "text/html" : "CassandraRow{vid: 3930791, lat: 40.631027023, lon: -74.0088763833, name: Rocco's Calamari}"
       },
       "output_type" : "execute_result",
-      "execution_count" : 10
+      "execution_count" : 46,
+      "time" : "Took: 517 milliseconds, at 2016-5-18 23:3"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "6D2D8EE2E3C44598A2F4C19EC6D918A2"
     },
     "cell_type" : "code",
     "source" : "// how many checkins in new york during valentine's day\ncheckins.where(\"year = 2010 and month=2 and day>12 and day<15\").count()",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "res8: Long = 887\n"
+      "text" : "res85: Long = 170\n"
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "887"
+        "text/html" : "170"
       },
       "output_type" : "execute_result",
-      "execution_count" : 11
+      "execution_count" : 47,
+      "time" : "Took: 620 milliseconds, at 2016-5-18 23:3"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "8A1728E820D64260AF5E647ED5C439B6"
     },
     "cell_type" : "code",
     "source" : "venues.where(\"vid = 7239827\").first()",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "res9: com.datastax.spark.connector.CassandraRow = CassandraRow{vid: 7239827, lat: 40.758265613, lon: -73.994356727, name: Central Park Manhattan }\n"
+      "text" : "res87: com.datastax.spark.connector.CassandraRow = CassandraRow{vid: 7239827, lat: 40.758265613, lon: -73.994356727, name: Central Park Manhattan }\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : "CassandraRow{vid: 7239827, lat: 40.758265613, lon: -73.994356727, name: Central Park Manhattan }"
       },
       "output_type" : "execute_result",
-      "execution_count" : 12
+      "execution_count" : 48,
+      "time" : "Took: 493 milliseconds, at 2016-5-18 23:3"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "B50A44E692F84195B0EF4A8A4EC0D839"
     },
     "cell_type" : "code",
     "source" : "venues.select(\"vid\", \"name\").take(10).foreach(println)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "CassandraRow{vid: 492237, name: Bohemian}\nCassandraRow{vid: 557479, name: Swat Bar}\nCassandraRow{vid: 593529, name: BookCourt}\nCassandraRow{vid: 434991, name: Il Buco}\nCassandraRow{vid: 985483, name: Lace A Gentlemens Club}\nCassandraRow{vid: 4233426, name: Vela Tapas}\nCassandraRow{vid: 200423, name: Hoboken Cottage}\nCassandraRow{vid: 230019, name: Public School 30}\nCassandraRow{vid: 421708, name: Other Music}\nCassandraRow{vid: 1007123, name: David Zwirner Gallery}\n"
+      "text" : "CassandraRow{vid: 3930791, name: Rocco's Calamari}\nCassandraRow{vid: 439266, name: European Day Spa & Salon}\nCassandraRow{vid: 7375485, name: B&B Empire}\nCassandraRow{vid: 477546, name: Lenny's}\nCassandraRow{vid: 593529, name: BookCourt}\nCassandraRow{vid: 4233426, name: Vela Tapas}\nCassandraRow{vid: 200423, name: Hoboken Cottage}\nCassandraRow{vid: 1007123, name: David Zwirner Gallery}\nCassandraRow{vid: 2922154, name: Long Island College Hospital}\nCassandraRow{vid: 763430, name: Lees Studio Warehouse}\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 13
+      "execution_count" : 49,
+      "time" : "Took: 574 milliseconds, at 2016-5-18 23:3"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "5FE435E654484DA8812BFD990D231DB3"
+    },
     "cell_type" : "markdown",
     "source" : "# Some type mapping \nCassandraRow, RddRow, and scala case classes"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "26C4BE20FFE246CD8ACED88D18E452F2"
     },
     "cell_type" : "code",
     "source" : "// soho bounding box: -74.0055, 40.7187, -73.9959, 40.7296\n// from CassandraRow to scala Tuples\nval coords = checkins.map(row => (row.getDouble(\"lat\"), row.getDouble(\"lon\")))\n\ncoords.\n  filter(coord => coord._1 > 40.7187 & coord._1 < 40.7296).\n  filter(coord => coord._2 > -74.0055 & coord._2 < -73.9959).\n  count()",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "coords: org.apache.spark.rdd.RDD[(Double, Double)] = MapPartitionsRDD[9] at map at <console>:65\nres11: Long = 5135\n"
+      "text" : "coords: org.apache.spark.rdd.RDD[(Double, Double)] = MapPartitionsRDD[199] at map at <console>:103\nres91: Long = 131\n"
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "5135"
+        "text/html" : "131"
       },
       "output_type" : "execute_result",
-      "execution_count" : 14
+      "execution_count" : 50,
+      "time" : "Took: 773 milliseconds, at 2016-5-18 23:3"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "7A72F79E794C4E8B918FF8A62787FC24"
     },
     "cell_type" : "code",
     "source" : "// from CassandraRow to some other object\n\n// via cassandraRow methods\nvenues.map(row => (row.getLong(\"vid\"), row.getString(\"name\"))).take(10).foreach(println)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "(492237,Bohemian)\n(557479,Swat Bar)\n(593529,BookCourt)\n(434991,Il Buco)\n(985483,Lace A Gentlemens Club)\n(4233426,Vela Tapas)\n(200423,Hoboken Cottage)\n(230019,Public School 30)\n(421708,Other Music)\n(1007123,David Zwirner Gallery)\n"
+      "text" : "(3930791,Rocco's Calamari)\n(439266,European Day Spa & Salon)\n(7375485,B&B Empire)\n(477546,Lenny's)\n(593529,BookCourt)\n(4233426,Vela Tapas)\n(200423,Hoboken Cottage)\n(1007123,David Zwirner Gallery)\n(2922154,Long Island College Hospital)\n(763430,Lees Studio Warehouse)\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 15
+      "execution_count" : 51,
+      "time" : "Took: 620 milliseconds, at 2016-5-18 23:3"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "2EE8403815F749168D1292FB1E72FC96"
     },
     "cell_type" : "code",
     "source" : "// by converting to a spark sql/dataframe\nimport org.apache.spark.sql.cassandra.CassandraSQLContext\nval cc = new CassandraSQLContext(sc)\nval df_venues = cc.sql(\"select vid, name from lbsn.venues\")\n\ndf_venues.show(10, false)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "+-------+----------------------+\n|vid    |name                  |\n+-------+----------------------+\n|492237 |Bohemian              |\n|557479 |Swat Bar              |\n|593529 |BookCourt             |\n|434991 |Il Buco               |\n|985483 |Lace A Gentlemens Club|\n|4233426|Vela Tapas            |\n|200423 |Hoboken Cottage       |\n|230019 |Public School 30      |\n|421708 |Other Music           |\n|1007123|David Zwirner Gallery |\n+-------+----------------------+\nonly showing top 10 rows\n\nimport org.apache.spark.sql.cassandra.CassandraSQLContext\ncc: org.apache.spark.sql.cassandra.CassandraSQLContext = org.apache.spark.sql.cassandra.CassandraSQLContext@6a21b79d\ndf_venues: org.apache.spark.sql.DataFrame = [vid: bigint, name: string]\n"
+      "text" : "+-------+----------------------------+\n|vid    |name                        |\n+-------+----------------------------+\n|3930791|Rocco's Calamari            |\n|439266 |European Day Spa & Salon    |\n|7375485|B&B Empire                  |\n|477546 |Lenny's                     |\n|593529 |BookCourt                   |\n|4233426|Vela Tapas                  |\n|200423 |Hoboken Cottage             |\n|1007123|David Zwirner Gallery       |\n|2922154|Long Island College Hospital|\n|763430 |Lees Studio Warehouse       |\n+-------+----------------------------+\nonly showing top 10 rows\n\nimport org.apache.spark.sql.cassandra.CassandraSQLContext\ncc: org.apache.spark.sql.cassandra.CassandraSQLContext = org.apache.spark.sql.cassandra.CassandraSQLContext@44fe2f79\ndf_venues: org.apache.spark.sql.DataFrame = [vid: bigint, name: string]\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 16
+      "execution_count" : 52,
+      "time" : "Took: 698 milliseconds, at 2016-5-18 23:4"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "230D067A793F4D218E2E015C017EE24D"
     },
     "cell_type" : "code",
     "source" : "val checkins = sc.cassandraTable(\"lbsn\", \"checkins\").select(\"ts\", \"uid\", \"vid\").where(\"year=2010 and month=9 and day<16 and day>13\")\ncheckins.take(10).foreach(println)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "CassandraRow{ts: 2010-09-14 02:01:31+0200, uid: 853, vid: 917955}\nCassandraRow{ts: 2010-09-14 02:05:28+0200, uid: 4516, vid: 37160}\nCassandraRow{ts: 2010-09-14 02:05:44+0200, uid: 2964, vid: 956870}\nCassandraRow{ts: 2010-09-14 02:05:59+0200, uid: 48555, vid: 3026508}\nCassandraRow{ts: 2010-09-14 02:11:28+0200, uid: 189786, vid: 1036251}\nCassandraRow{ts: 2010-09-14 02:14:33+0200, uid: 33841, vid: 1502210}\nCassandraRow{ts: 2010-09-14 02:16:07+0200, uid: 12719, vid: 1078872}\nCassandraRow{ts: 2010-09-14 02:18:17+0200, uid: 105012, vid: 341495}\nCassandraRow{ts: 2010-09-14 02:19:24+0200, uid: 1214, vid: 1205097}\nCassandraRow{ts: 2010-09-14 02:22:20+0200, uid: 189786, vid: 541535}\ncheckins: com.datastax.spark.connector.rdd.CassandraTableScanRDD[com.datastax.spark.connector.CassandraRow] = CassandraTableScanRDD[19] at RDD at CassandraRDD.scala:15\n"
+      "text" : "CassandraRow{ts: 2010-09-14 02:00:00+0200, uid: 22, vid: 161677}\nCassandraRow{ts: 2010-09-14 02:00:00+0200, uid: 22, vid: 739981}\nCassandraRow{ts: 2010-09-14 02:00:00+0200, uid: 22, vid: 1008773}\ncheckins: com.datastax.spark.connector.rdd.CassandraTableScanRDD[com.datastax.spark.connector.CassandraRow] = CassandraTableScanRDD[209] at RDD at CassandraRDD.scala:15\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 17
+      "execution_count" : 53,
+      "time" : "Took: 785 milliseconds, at 2016-5-18 23:4"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "476F1E86F0AF4E4C9BED81624D45182A"
     },
     "cell_type" : "code",
     "source" : "val checkins = cc.sql(\"select ts, uid, vid from lbsn.checkins where year=2010 and month=9 and day<16 and day>13\")\ncheckins.show(10, false)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "+---------------------+------+-------+\n|ts                   |uid   |vid    |\n+---------------------+------+-------+\n|2010-09-14 02:01:31.0|853   |917955 |\n|2010-09-14 02:05:28.0|4516  |37160  |\n|2010-09-14 02:05:44.0|2964  |956870 |\n|2010-09-14 02:05:59.0|48555 |3026508|\n|2010-09-14 02:11:28.0|189786|1036251|\n|2010-09-14 02:14:33.0|33841 |1502210|\n|2010-09-14 02:16:07.0|12719 |1078872|\n|2010-09-14 02:18:17.0|105012|341495 |\n|2010-09-14 02:19:24.0|1214  |1205097|\n|2010-09-14 02:22:20.0|189786|541535 |\n+---------------------+------+-------+\nonly showing top 10 rows\n\ncheckins: org.apache.spark.sql.DataFrame = [ts: timestamp, uid: bigint, vid: bigint]\n"
+      "text" : "+---------------------+---+-------+\n|ts                   |uid|vid    |\n+---------------------+---+-------+\n|2010-09-14 02:00:00.0|22 |161677 |\n|2010-09-14 02:00:00.0|22 |739981 |\n|2010-09-14 02:00:00.0|22 |1008773|\n+---------------------+---+-------+\n\ncheckins: org.apache.spark.sql.DataFrame = [ts: timestamp, uid: bigint, vid: bigint]\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 18
+      "execution_count" : 54,
+      "time" : "Took: 780 milliseconds, at 2016-5-18 23:4"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "13C9DA510D3544ECAA51FBED6522EE62"
     },
     "cell_type" : "code",
     "source" : "val checkins = cc.sql(\"select ts, uid, vid from lbsn.checkins where day<16 and day>13\")\ncheckins.show(10, false)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "+---------------------+-----+------+\n|ts                   |uid  |vid   |\n+---------------------+-----+------+\n|2010-07-14 02:00:12.0|9024 |107406|\n|2010-07-14 02:01:49.0|79128|147618|\n|2010-07-14 02:02:32.0|11372|187679|\n|2010-07-14 02:03:38.0|23665|19762 |\n|2010-07-14 02:09:28.0|89502|299617|\n|2010-07-14 02:10:10.0|33494|244214|\n|2010-07-14 02:13:53.0|33843|11975 |\n|2010-07-14 02:14:04.0|84107|780336|\n|2010-07-14 02:15:02.0|718  |54022 |\n|2010-07-14 02:16:42.0|578  |268521|\n+---------------------+-----+------+\nonly showing top 10 rows\n\ncheckins: org.apache.spark.sql.DataFrame = [ts: timestamp, uid: bigint, vid: bigint]\n"
+      "text" : "+---------------------+---+-----+\n|ts                   |uid|vid  |\n+---------------------+---+-----+\n|2009-11-14 01:00:00.0|22 |99038|\n|2009-11-14 01:00:00.0|22 |86144|\n|2009-11-14 01:00:00.0|22 |91324|\n|2009-11-14 01:00:00.0|22 |88260|\n|2009-11-14 01:00:00.0|22 |16803|\n|2009-11-14 01:00:00.0|22 |75611|\n|2009-11-14 01:00:00.0|22 |85390|\n|2009-11-14 01:00:00.0|22 |86140|\n|2009-11-14 01:00:00.0|22 |88268|\n|2009-11-14 01:00:00.0|22 |75252|\n+---------------------+---+-----+\nonly showing top 10 rows\n\ncheckins: org.apache.spark.sql.DataFrame = [ts: timestamp, uid: bigint, vid: bigint]\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 19
+      "execution_count" : 55,
+      "time" : "Took: 725 milliseconds, at 2016-5-18 23:4"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "61383309AF364C26A21026833A8D2AD9"
     },
     "cell_type" : "code",
     "source" : "val checkins = cc.sql(\"select ts, uid, vid from lbsn.checkins where year=2010 and month=9 and vid=57871\")\ncheckins.show(10, false)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "+---------------------+----+-----+\n|ts                   |uid |vid  |\n+---------------------+----+-----+\n|2010-10-01 01:57:28.0|1684|57871|\n+---------------------+----+-----+\n\ncheckins: org.apache.spark.sql.DataFrame = [ts: timestamp, uid: bigint, vid: bigint]\n"
+      "text" : "+---+---+---+\n|ts |uid|vid|\n+---+---+---+\n+---+---+---+\n\ncheckins: org.apache.spark.sql.DataFrame = [ts: timestamp, uid: bigint, vid: bigint]\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 20
+      "execution_count" : 56,
+      "time" : "Took: 736 milliseconds, at 2016-5-18 23:5"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "6411BEA49025472FA23864364695C8E0"
+    },
     "cell_type" : "markdown",
     "source" : "# Joining tables\nSpark + Cassandra"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "DF0B83134F53499694DBFB34320CD3D5"
     },
     "cell_type" : "code",
     "source" : "// joining tables (the easy way, and just as fast)\n\nval df_venues   = cc.sql(\"select vid, name from lbsn.venues\").as(\"venues\").cache()\nval df_checkins = cc.sql(\"select ts, uid, lat, lon, vid from lbsn.checkins\").as(\"checkins\").cache()\n\nval checkins_venues = df_checkins.join(df_venues, df_checkins(\"checkins.vid\") === df_venues(\"venues.vid\"), \"inner\").select(\"ts\", \"uid\", \"lat\", \"lon\", \"venues.vid\",\"venues.name\")\n\ncheckins_venues.show(10, false)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "+---------------------+------+-------------+--------------+-----+--------------+\n|ts                   |uid   |lat          |lon           |vid  |name          |\n+---------------------+------+-------------+--------------+-----+--------------+\n|2010-07-01 02:47:47.0|578   |40.7490532543|-73.9680397511|11831|United Nations|\n|2010-07-04 03:40:29.0|119601|40.7490532543|-73.9680397511|11831|United Nations|\n|2010-07-06 07:36:57.0|38706 |40.7490532543|-73.9680397511|11831|United Nations|\n|2010-07-06 23:04:57.0|38706 |40.7490532543|-73.9680397511|11831|United Nations|\n|2010-07-07 05:13:12.0|38706 |40.7490532543|-73.9680397511|11831|United Nations|\n|2010-07-07 23:29:58.0|2242  |40.7490532543|-73.9680397511|11831|United Nations|\n|2010-07-09 04:03:48.0|38706 |40.7490532543|-73.9680397511|11831|United Nations|\n|2010-07-11 01:44:08.0|578   |40.7490532543|-73.9680397511|11831|United Nations|\n|2010-07-11 17:04:14.0|578   |40.7490532543|-73.9680397511|11831|United Nations|\n|2010-07-14 01:26:50.0|578   |40.7490532543|-73.9680397511|11831|United Nations|\n+---------------------+------+-------------+--------------+-----+--------------+\nonly showing top 10 rows\n\ndf_venues: org.apache.spark.sql.DataFrame = [vid: bigint, name: string]\ndf_checkins: org.apache.spark.sql.DataFrame = [ts: timestamp, uid: bigint, lat: double, lon: double, vid: bigint]\ncheckins_venues: org.apache.spark.sql.DataFrame = [ts: timestamp, uid: bigint, lat: double, lon: double, vid: bigint, name: string]\n"
+      "text" : "+---------------------+---+-------------+------------------+------+-------------------------+\n|ts                   |uid|lat          |lon               |vid   |name                     |\n+---------------------+---+-------------+------------------+------+-------------------------+\n|2009-12-02 01:00:00.0|22 |40.7413150374|-74.00507569310001|56831 |Old Homestead Steak House|\n|2010-02-16 01:00:00.0|22 |40.73112219  |-74.00416827      |359231|Mr. Dennehys             |\n|2010-02-16 01:00:00.0|22 |40.7312221667|-74.0031008333    |485432|BookBook                 |\n|2010-02-16 01:00:00.0|22 |40.7312221667|-74.0031008333    |485432|BookBook                 |\n|2010-02-16 01:00:00.0|22 |40.73171019  |-74.00121062      |411633|Down The Hatch           |\n|2009-10-15 02:00:00.0|22 |40.7314577366|-74.0002718454    |33634 |Red Bamboo               |\n|2010-06-27 02:00:00.0|22 |40.7332810262|-73.9997256792    |207035|Gobo                     |\n|2010-02-16 01:00:00.0|22 |40.7314438465|-74.0006768703    |461435|Washington Square Diner  |\n|2009-12-02 01:00:00.0|22 |40.7425115937|-74.0060305595    |27836 |The Chelsea Market       |\n|2010-10-09 02:00:00.0|0  |40.7425115937|-74.0060305595    |27836 |The Chelsea Market       |\n+---------------------+---+-------------+------------------+------+-------------------------+\nonly showing top 10 rows\n\ndf_venues: org.apache.spark.sql.DataFrame = [vid: bigint, name: string]\ndf_checkins: org.apache.spark.sql.DataFrame = [ts: timestamp, uid: bigint, lat: double, lon: double, vid: bigint]\ncheckins_venues: org.apache.spark.sql.DataFrame = [ts: timestamp, uid: bigint, lat: double, lon: double, vid: bigint, name: string]\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 21
+      "execution_count" : 57,
+      "time" : "Took: 980 milliseconds, at 2016-5-18 23:5"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "C05B454ED0054F36871972AF6A2538AE"
+    },
     "cell_type" : "markdown",
     "source" : "# Aggregation and sorting"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "8EA289D923554B5289D61D6E46209B22"
     },
     "cell_type" : "code",
     "source" : "// top 10 checked in venues\nval venues_count = checkins_venues.groupBy(\"name\").count() \nvenues_count.sort(venues_count(\"count\").desc).show(10, false)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "+---------------------------------+-----+\n|name                             |count|\n+---------------------------------+-----+\n|LGA LaGuardia Airport            |1673 |\n|JFK John F. Kennedy International|1643 |\n|Starbucks                        |1316 |\n|Starbucks Coffee                 |1114 |\n|Times Square                     |1084 |\n|EWR Newark Liberty International |1084 |\n|Grand Central Terminal           |1002 |\n|Dunkin' Donuts                   |508  |\n|Madison Square Garden            |426  |\n|The Museum of Modern Art (MoMA)  |392  |\n+---------------------------------+-----+\nonly showing top 10 rows\n\nvenues_count: org.apache.spark.sql.DataFrame = [name: string, count: bigint]\n"
+      "text" : "+---------------------------------+-----+\n|name                             |count|\n+---------------------------------+-----+\n|JFK John F. Kennedy International|26   |\n|Fat Sal's Pizza                  |5    |\n|EWR Newark Liberty International |5    |\n|The High Line                    |4    |\n|JFK Terminal 5                   |4    |\n|Madison Square Garden            |4    |\n|Spice Market                     |3    |\n|Billymark's West                 |3    |\n|BES Boutique Eat Shop            |3    |\n|H&H Bagels                       |2    |\n+---------------------------------+-----+\nonly showing top 10 rows\n\nvenues_count: org.apache.spark.sql.DataFrame = [name: string, count: bigint]\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 80
+      "execution_count" : 58,
+      "time" : "Took: 1 second 131 milliseconds, at 2016-5-18 23:5"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "C5A5EF67D0FF43DBA8E7B6C361FCFB38"
+    },
     "cell_type" : "markdown",
     "source" : "#Geo clustering with k-means"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "E01E4F9948E34FA89A2E14CB55738B54"
     },
     "cell_type" : "code",
     "source" : "// run k-means clustering on the data\n\nimport org.apache.spark.mllib.clustering.KMeans\nimport org.apache.spark.mllib.linalg.Vectors\n\nval locs = checkins_venues.select(\"lat\",\"lon\").map(s => Vectors.dense(s.getDouble(0), s.getDouble(1))).cache()\n\nval numClusters = 20\nval numIterations = 20\nval clusters = KMeans.train(locs, numClusters, numIterations)\n\nval WSSSE = clusters.computeCost(locs)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "import org.apache.spark.mllib.clustering.KMeans\nimport org.apache.spark.mllib.linalg.Vectors\nlocs: org.apache.spark.rdd.RDD[org.apache.spark.mllib.linalg.Vector] = MapPartitionsRDD[68] at map at <console>:76\nnumClusters: Int = 20\nnumIterations: Int = 20\nclusters: org.apache.spark.mllib.clustering.KMeansModel = org.apache.spark.mllib.clustering.KMeansModel@5460bb6c\nWSSSE: Double = 34.99724852474764\n"
+      "text" : "import org.apache.spark.mllib.clustering.KMeans\nimport org.apache.spark.mllib.linalg.Vectors\nlocs: org.apache.spark.rdd.RDD[org.apache.spark.mllib.linalg.Vector] = MapPartitionsRDD[269] at map at <console>:126\nnumClusters: Int = 20\nnumIterations: Int = 20\nclusters: org.apache.spark.mllib.clustering.KMeansModel = org.apache.spark.mllib.clustering.KMeansModel@702df0cd\nWSSSE: Double = 0.0015201984095624984\n"
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "34.99724852474764"
+        "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 24
+      "execution_count" : 59,
+      "time" : "Took: 975 milliseconds, at 2016-5-18 23:5"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "A86743494A7642A48EFD5C2CE032C536"
     },
     "cell_type" : "code",
     "source" : "println(\"Within Set Sum of Squared Errors = \" + WSSSE + \"\\n\")\n\nclusters.clusterCenters.foreach(println)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "Within Set Sum of Squared Errors = 34.99724852474764\n\n[40.7612912490815,-73.9781657686236]\n[40.838502819122674,-74.18710957023062]\n[40.64447449619626,-73.78557398465726]\n[40.73665014022501,-74.04010465068197]\n[40.87420312971978,-74.06371821149364]\n[40.765416931516945,-73.86951479125611]\n[40.59385053747693,-74.23935905284836]\n[40.70827027479109,-74.01128699007546]\n[40.729592001700524,-73.99550329931634]\n[40.784163423526145,-73.94924672454857]\n[40.6075433483288,-74.00319655806435]\n[40.688978452402914,-74.183078885323]\n[40.719858366883344,-73.94262338294331]\n[40.742661370446996,-74.16752149057466]\n[40.73552495954395,-73.80689326059044]\n[40.75045753198124,-73.98965291935764]\n[40.67633201473014,-73.98122625471572]\n[40.858150942460576,-73.83471726328885]\n[40.61500573899027,-74.1256469034989]\n[40.84297000107409,-73.93114016427124]\n"
+      "text" : "Within Set Sum of Squared Errors = 0.0016296358086726338\n\n[40.74247944578182,-74.00247583775455]\n[40.64382999701666,-73.78291969866666]\n[40.6901382984375,-74.178618899475]\n[40.675413924366666,-73.96895093273334]\n[40.70388464324444,-74.01472657552222]\n[40.76140494087142,-73.99806475144285]\n[40.7304661716,-74.0325039625]\n[40.73024791224999,-74.00475154798335]\n[40.735095741496544,-74.00307256956552]\n[40.75342502355601,-73.99426009202001]\n[40.6756762829,-74.0004730771]\n[40.68861486116666,-73.98972406303332]\n[40.6891968241,-74.0445041656]\n[40.64592764685714,-73.77726884137144]\n[40.7259090792,-74.0094423294]\n[40.73166687684255,-74.00201611526383]\n[40.6993813387,-74.03939723970001]\n[40.748684244900005,-73.99664441888]\n[40.7415796809875,-74.00626358712084]\n[40.74958364844,-74.00572308739503]\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 25
+      "execution_count" : 26,
+      "time" : "Took: 485 milliseconds, at 2016-5-18 22:26"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "CD2D71A1A5034C57850316D340BB2DE2"
+    },
     "cell_type" : "markdown",
     "source" : "# Model Scoring "
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "33D1C2BC675F4924896E3B53328060F6"
     },
     "cell_type" : "code",
     "source" : "import org.apache.spark.sql.functions.udf\n\nval func = (lat:Double, lon:Double) => clusters.predict(Vectors.dense(lat,lon))\nval sqlfunc = udf(func)\n\n// add predictions as extra column, by using a user define function\n// remember that clusters closes over the udf, and is broadcasted to the various executors\nval locs_cid = checkins_venues.withColumn(\"cluster\", sqlfunc(checkins_venues(\"lat\"), checkins_venues(\"lon\")))\n\nlocs_cid.show(10, false)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "+---------------------+------+-------------+------------------+-------+---------------------+-------+\n|ts                   |uid   |lat          |lon               |vid    |name                 |cluster|\n+---------------------+------+-------------+------------------+-------+---------------------+-------+\n|2010-07-01 02:03:30.0|10231 |40.663200646 |-73.984763295     |1225113|Thistle Hill Tavern  |16     |\n|2010-07-01 02:06:29.0|4907  |40.74101965  |-73.99416911670001|1078263|Limelight Marketplace|15     |\n|2010-07-01 02:10:02.0|4929  |40.747507    |-73.989425        |1175513|La Rosa Cigars       |15     |\n|2010-07-01 02:14:25.0|26851 |40.76823395  |-73.95315415      |164621 |David Copperfields   |9      |\n|2010-07-01 02:17:56.0|4929  |40.74695265  |-73.9857679833    |141918 |J.J. Hat Center      |15     |\n|2010-07-01 02:23:08.0|4929  |40.7484436586|-73.9857316017    |12313  |Empire State Building|15     |\n|2010-07-01 02:25:03.0|24712 |40.6752607557|-73.9813770354    |296249 |Al di lá Trattoria   |16     |\n|2010-07-01 02:26:54.0|6639  |40.7373236513|-73.9910423756    |261515 |Havana Central       |8      |\n|2010-07-01 02:27:24.0|158638|40.82951468  |-73.92625695      |153115 |Yankees Ticket Office|19     |\n|2010-07-01 02:27:57.0|124703|40.826946067 |-73.92811775210001|11720  |Yankee Stadium       |19     |\n+---------------------+------+-------------+------------------+-------+---------------------+-------+\nonly showing top 10 rows\n\nimport org.apache.spark.sql.functions.udf\nfunc: (Double, Double) => Int = <function2>\nsqlfunc: org.apache.spark.sql.UserDefinedFunction = UserDefinedFunction(<function2>,IntegerType,List(DoubleType, DoubleType))\nlocs_cid: org.apache.spark.sql.DataFrame = [ts: timestamp, uid: bigint, lat: double, lon: double, vid: bigint, name: string, cluster: int]\n"
+      "text" : "+---------------------+---+------------------+------------------+-------+---------------------------------+-------+\n|ts                   |uid|lat               |lon               |vid    |name                             |cluster|\n+---------------------+---+------------------+------------------+-------+---------------------------------+-------+\n|2010-07-13 02:00:00.0|22 |40.6438845363     |-73.78280639649999|23261  |JFK John F. Kennedy International|1      |\n|2010-07-23 02:00:00.0|15 |40.74993789       |-73.99542582      |1441166|Amtrak Acela 2173 (NYC To Philly)|10     |\n|2010-07-26 02:00:00.0|15 |40.750613794      |-73.993434906     |11875  |Madison Square Garden            |10     |\n|2010-07-26 02:00:00.0|15 |40.7527147753     |-73.9936387539    |25323  |New Yorker Hotel                 |10     |\n|2010-07-26 02:00:00.0|15 |40.7607320299     |-73.9963746071    |891124 |Rescue Co. 1                     |14     |\n|2010-07-26 02:00:00.0|15 |40.7493864977     |-74.0075325966    |1171692|Chelsea Waterside Park           |8      |\n|2010-07-26 02:00:00.0|15 |40.748153686500004|-74.0077590942    |39670  |Chelsea Piers                    |8      |\n|2010-07-26 02:00:00.0|15 |40.742396165900004|-74.0075433254    |15079  |The High Line                    |9      |\n|2010-07-26 02:00:00.0|15 |40.739219899999995|-74.00933688      |422508 |Gansevoort 69                    |9      |\n|2010-07-27 02:00:00.0|15 |40.6438845363     |-73.78280639649999|23261  |JFK John F. Kennedy International|1      |\n+---------------------+---+------------------+------------------+-------+---------------------------------+-------+\nonly showing top 10 rows\n\nimport org.apache.spark.sql.functions.udf\nfunc: (Double, Double) => Int = <function2>\nsqlfunc: org.apache.spark.sql.UserDefinedFunction = UserDefinedFunction(<function2>,IntegerType,List(DoubleType, DoubleType))\nlocs_cid: org.apache.spark.sql.DataFrame = [ts: timestamp, uid: bigint, lat: double, lon: double, vid: bigint, name: string, cluster: int]\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 26
+      "execution_count" : 60,
+      "time" : "Took: 1 second 176 milliseconds, at 2016-5-18 23:5"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "E9E1CE4F4B514E8692BF201241ED6AE6"
+    },
     "cell_type" : "markdown",
     "source" : "#Writing the clusters centers in cassandra"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "D0D878531F5549EBB02D248A47F40F88"
     },
     "cell_type" : "code",
     "source" : "import org.joda.time.DateTime\nimport org.joda.time.DateTimeZone\n\ncase class VenueClusters(year: Int, ts: org.joda.time.DateTime, cid: Int, lat:Double, lon:Double)\n\nval now = new DateTime(DateTimeZone.UTC);\nval collection = clusters.clusterCenters.zipWithIndex.map(\n                   c => VenueClusters(now.getYear(), now, c._2, c._1(0), c._1(1)))\n",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "import org.joda.time.DateTime\nimport org.joda.time.DateTimeZone\ndefined class VenueClusters\nnow: org.joda.time.DateTime = 2015-12-16T16:39:46.753Z\ncollection: Array[VenueClusters] = Array(VenueClusters(2015,2015-12-16T16:39:46.753Z,0,40.7612912490815,-73.9781657686236), VenueClusters(2015,2015-12-16T16:39:46.753Z,1,40.838502819122674,-74.18710957023062), VenueClusters(2015,2015-12-16T16:39:46.753Z,2,40.64447449619626,-73.78557398465726), VenueClusters(2015,2015-12-16T16:39:46.753Z,3,40.73665014022501,-74.04010465068197), VenueClusters(2015,2015-12-16T16:39:46.753Z,4,40.87420312971978,-74.06371821149364), VenueClusters(2015,2015-12-16T16:39:46.753Z,5,40.765416931516945,-73.86951479125611), VenueClusters(2015,2015-12-16T16:39:46.753Z,6,40.59385053747693,-74.23935905284836), VenueClusters(..."
+      "text" : "import org.joda.time.DateTime\nimport org.joda.time.DateTimeZone\ndefined class VenueClusters\nnow: org.joda.time.DateTime = 2016-05-18T21:06:30.351Z\ncollection: Array[VenueClusters] = Array(VenueClusters(2016,2016-05-18T21:06:30.351Z,0,40.734668020296766,-74.00333298996449), VenueClusters(2016,2016-05-18T21:06:30.351Z,1,40.64382999701666,-73.78291969866666), VenueClusters(2016,2016-05-18T21:06:30.351Z,2,40.687276885,-74.1826701164), VenueClusters(2016,2016-05-18T21:06:30.351Z,3,40.6942890814,-74.04195070265001), VenueClusters(2016,2016-05-18T21:06:30.351Z,4,40.6654865824,-73.9716982841), VenueClusters(2016,2016-05-18T21:06:30.351Z,5,40.68861486116666,-73.98972406303332), VenueClusters(2016,2016-05-18T21:06:30.351Z,6,40.70388464324444,-74.01472657552222), VenueClusters(2016,2016-05-18T21:0..."
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "<div class=\"container-fluid\"><div><div class=\"col-md-12\"><div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anonb5d911296e7a5970a8f06b15ddf582ae&quot;,&quot;dataInit&quot;:[{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:0,&quot;lon&quot;:-73.9781657686236,&quot;lat&quot;:40.7612912490815},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:1,&quot;lon&quot;:-74.18710957023062,&quot;lat&quot;:40.838502819122674},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:2,&quot;lon&quot;:-73.78557398465726,&quot;lat&quot;:40.64447449619626},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:3,&quot;lon&quot;:-74.04010465068197,&quot;lat&quot;:40.73665014022501},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:4,&quot;lon&quot;:-74.06371821149364,&quot;lat&quot;:40.87420312971978},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:5,&quot;lon&quot;:-73.86951479125611,&quot;lat&quot;:40.765416931516945},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:6,&quot;lon&quot;:-74.23935905284836,&quot;lat&quot;:40.59385053747693},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:7,&quot;lon&quot;:-74.01128699007546,&quot;lat&quot;:40.70827027479109},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:8,&quot;lon&quot;:-73.99550329931634,&quot;lat&quot;:40.729592001700524},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:9,&quot;lon&quot;:-73.94924672454857,&quot;lat&quot;:40.784163423526145},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:10,&quot;lon&quot;:-74.00319655806435,&quot;lat&quot;:40.6075433483288},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:11,&quot;lon&quot;:-74.183078885323,&quot;lat&quot;:40.688978452402914},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:12,&quot;lon&quot;:-73.94262338294331,&quot;lat&quot;:40.719858366883344},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:13,&quot;lon&quot;:-74.16752149057466,&quot;lat&quot;:40.742661370446996},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:14,&quot;lon&quot;:-73.80689326059044,&quot;lat&quot;:40.73552495954395},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:15,&quot;lon&quot;:-73.98965291935764,&quot;lat&quot;:40.75045753198124},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:16,&quot;lon&quot;:-73.98122625471572,&quot;lat&quot;:40.67633201473014},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:17,&quot;lon&quot;:-73.83471726328885,&quot;lat&quot;:40.858150942460576},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:18,&quot;lon&quot;:-74.1256469034989,&quot;lat&quot;:40.61500573899027},{&quot;ts&quot;:&quot;2015-12-16T16:39:46.753Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:19,&quot;lon&quot;:-73.93114016427124,&quot;lat&quot;:40.84297000107409}],&quot;genId&quot;:&quot;403122231&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tableChart'], \n      function(playground, _magictableChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictableChart,\n    \"o\": {\"headers\":[\"year\",\"ts\",\"cid\",\"lat\",\"lon\"],\"width\":600,\"height\":400}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n        <label for=\"input-anon91b0c78ee519a778362759c4b58f4c87\">\n      Max Points\n    </label><input id=\"input-anon91b0c78ee519a778362759c4b58f4c87\" type=\"number\" name=\"input-anon91b0c78ee519a778362759c4b58f4c87\" data-bind=\"textInput: value, fireChange: true, valueUpdate: 'input'\">\n      <script data-selector=\"#input-anon91b0c78ee519a778362759c4b58f4c87\" data-this=\"{&quot;valueId&quot;:&quot;anon91b0c78ee519a778362759c4b58f4c87&quot;,&quot;valueInit&quot;:25}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(\n ['observable', 'knockout'],\n function (Observable, ko) {\n   //console.log(\"-----------\")\n   //console.dir(this);\n   //console.dir(valueId);\n   var obs = Observable.makeObservable(valueId)\n                       .extend({ rateLimit: { //throttle\n                                   timeout: 500,\n                                   method: \"notifyWhenChangesStop\"\n                                 }\n                               }\n                       );\n   ko.applyBindings({\n     value: obs\n   }, this);\n   obs(valueInit);\n }\n)/*]]>*/</script>\n    </input>\n        <p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anonf55665c516aef52d00f409f6d035893b&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> <span style=\"color:red\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anon1438fb67d4e77be5f296bc20118e491c&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n        <div>\n        </div>\n      </div></div></div></div></div>"
+        "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 38
+      "execution_count" : 61,
+      "time" : "Took: 459 milliseconds, at 2016-5-18 23:6"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "04D1B05F9CEF4EC28F95251987C16078"
     },
     "cell_type" : "code",
     "source" : "sc.parallelize(collection).saveToCassandra(\"lbsn\", \"venues_geoclusters\")",
@@ -535,161 +602,189 @@
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 39
+      "execution_count" : 62,
+      "time" : "Took: 3 seconds 426 milliseconds, at 2016-5-18 23:6"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "014FF308FE7D470C963765B653BEA680"
+    },
     "cell_type" : "markdown",
     "source" : "#Storing the model history"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "4A697FB25D4D4554BAA153EDCDCEA35D"
     },
     "cell_type" : "code",
     "source" : "val checkins = cc.sql(\"select * from lbsn.venues_geoclusters\")\ncheckins.show(30, false)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "+----+-----------------------+---+------------------+------------------+\n|year|ts                     |cid|lat               |lon               |\n+----+-----------------------+---+------------------+------------------+\n|2015|2015-12-16 17:39:46.753|0  |40.7612912490815  |-73.9781657686236 |\n|2015|2015-12-16 17:39:46.753|1  |40.838502819122674|-74.18710957023062|\n|2015|2015-12-16 17:39:46.753|2  |40.64447449619626 |-73.78557398465726|\n|2015|2015-12-16 17:39:46.753|3  |40.73665014022501 |-74.04010465068197|\n|2015|2015-12-16 17:39:46.753|4  |40.87420312971978 |-74.06371821149364|\n|2015|2015-12-16 17:39:46.753|5  |40.765416931516945|-73.86951479125611|\n|2015|2015-12-16 17:39:46.753|6  |40.59385053747693 |-74.23935905284836|\n|2015|2015-12-16 17:39:46.753|7  |40.70827027479109 |-74.01128699007546|\n|2015|2015-12-16 17:39:46.753|8  |40.729592001700524|-73.99550329931634|\n|2015|2015-12-16 17:39:46.753|9  |40.784163423526145|-73.94924672454857|\n|2015|2015-12-16 17:39:46.753|10 |40.6075433483288  |-74.00319655806435|\n|2015|2015-12-16 17:39:46.753|11 |40.688978452402914|-74.183078885323  |\n|2015|2015-12-16 17:39:46.753|12 |40.719858366883344|-73.94262338294331|\n|2015|2015-12-16 17:39:46.753|13 |40.742661370446996|-74.16752149057466|\n|2015|2015-12-16 17:39:46.753|14 |40.73552495954395 |-73.80689326059044|\n|2015|2015-12-16 17:39:46.753|15 |40.75045753198124 |-73.98965291935764|\n|2015|2015-12-16 17:39:46.753|16 |40.67633201473014 |-73.98122625471572|\n|2015|2015-12-16 17:39:46.753|17 |40.858150942460576|-73.83471726328885|\n|2015|2015-12-16 17:39:46.753|18 |40.61500573899027 |-74.1256469034989 |\n|2015|2015-12-16 17:39:46.753|19 |40.84297000107409 |-73.93114016427124|\n|2015|2015-12-16 17:36:08.69 |0  |40.7612912490815  |-73.9781657686236 |\n|2015|2015-12-16 17:36:08.69 |1  |40.838502819122674|-74.18710957023062|\n|2015|2015-12-16 17:36:08.69 |2  |40.64447449619626 |-73.78557398465726|\n|2015|2015-12-16 17:36:08.69 |3  |40.73665014022501 |-74.04010465068197|\n|2015|2015-12-16 17:36:08.69 |4  |40.87420312971978 |-74.06371821149364|\n|2015|2015-12-16 17:36:08.69 |5  |40.765416931516945|-73.86951479125611|\n|2015|2015-12-16 17:36:08.69 |6  |40.59385053747693 |-74.23935905284836|\n|2015|2015-12-16 17:36:08.69 |7  |40.70827027479109 |-74.01128699007546|\n|2015|2015-12-16 17:36:08.69 |8  |40.729592001700524|-73.99550329931634|\n|2015|2015-12-16 17:36:08.69 |9  |40.784163423526145|-73.94924672454857|\n+----+-----------------------+---+------------------+------------------+\nonly showing top 30 rows\n\ncheckins: org.apache.spark.sql.DataFrame = [year: int, ts: timestamp, cid: int, lat: double, lon: double]\n"
+      "text" : "+----+-----------------------+---+------------------+------------------+\n|year|ts                     |cid|lat               |lon               |\n+----+-----------------------+---+------------------+------------------+\n|2016|2016-05-18 23:06:30.351|0  |40.734668020296766|-74.00333298996449|\n|2016|2016-05-18 23:06:30.351|1  |40.64382999701666 |-73.78291969866666|\n|2016|2016-05-18 23:06:30.351|2  |40.687276885      |-74.1826701164    |\n|2016|2016-05-18 23:06:30.351|3  |40.6942890814     |-74.04195070265001|\n|2016|2016-05-18 23:06:30.351|4  |40.6654865824     |-73.9716982841    |\n|2016|2016-05-18 23:06:30.351|5  |40.68861486116666 |-73.98972406303332|\n|2016|2016-05-18 23:06:30.351|6  |40.70388464324444 |-74.01472657552222|\n|2016|2016-05-18 23:06:30.351|7  |40.732022193379166|-74.00075616199166|\n|2016|2016-05-18 23:06:30.351|8  |40.748561790244445|-74.00748264597777|\n|2016|2016-05-18 23:06:30.351|9  |40.74176912853609 |-74.00503747100555|\n|2016|2016-05-18 23:06:30.351|10 |40.75017102168261 |-73.9947933645174 |\n|2016|2016-05-18 23:06:30.351|11 |40.680377595349995|-73.96757725705001|\n|2016|2016-05-18 23:06:30.351|12 |40.69109210291666 |-74.17726849383332|\n|2016|2016-05-18 23:06:30.351|13 |40.64592764685714 |-73.77726884137144|\n|2016|2016-05-18 23:06:30.351|14 |40.76259382904    |-73.99786422974   |\n|2016|2016-05-18 23:06:30.351|15 |40.73058300084223 |-74.0040462708689 |\n|2016|2016-05-18 23:06:30.351|16 |40.75609999857857 |-73.99570222977142|\n|2016|2016-05-18 23:06:30.351|17 |40.6756762829     |-74.0004730771    |\n|2016|2016-05-18 23:06:30.351|18 |40.7304661716     |-74.0325039625    |\n|2016|2016-05-18 23:06:30.351|19 |40.750419714236365|-74.00428344855455|\n|2016|2016-05-18 22:26:45.753|0  |40.74247944578182 |-74.00247583775455|\n|2016|2016-05-18 22:26:45.753|1  |40.64382999701666 |-73.78291969866666|\n|2016|2016-05-18 22:26:45.753|2  |40.6901382984375  |-74.178618899475  |\n|2016|2016-05-18 22:26:45.753|3  |40.675413924366666|-73.96895093273334|\n|2016|2016-05-18 22:26:45.753|4  |40.70388464324444 |-74.01472657552222|\n|2016|2016-05-18 22:26:45.753|5  |40.76140494087142 |-73.99806475144285|\n|2016|2016-05-18 22:26:45.753|6  |40.7304661716     |-74.0325039625    |\n|2016|2016-05-18 22:26:45.753|7  |40.73024791224999 |-74.00475154798335|\n|2016|2016-05-18 22:26:45.753|8  |40.735095741496544|-74.00307256956552|\n|2016|2016-05-18 22:26:45.753|9  |40.75342502355601 |-73.99426009202001|\n+----+-----------------------+---+------------------+------------------+\nonly showing top 30 rows\n\ncheckins: org.apache.spark.sql.DataFrame = [year: int, ts: timestamp, cid: int, lat: double, lon: double]\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 41
+      "execution_count" : 63,
+      "time" : "Took: 738 milliseconds, at 2016-5-18 23:6"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "7287D376DB6B40D789830C0D4C139A01"
+    },
     "cell_type" : "markdown",
     "source" : "# Top 3 venues for each cluster"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "3E2114F020AC48EBAF25F6DC6119491E"
     },
     "cell_type" : "code",
     "source" : "val df = locs_cid.select(\"cluster\", \"name\", \"vid\", \"lat\",\"lon\").\n    groupBy(\"cluster\", \"vid\").\n    agg(Map(\"vid\" -> \"count\")).cache()\n\nval df_agg = df.sort(df(\"cluster\"), df(\"count(vid)\").desc).as(\"clusters\").cache()\ndf_agg.show(10, false)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "+-------+------+----------+\n|cluster|vid   |count(vid)|\n+-------+------+----------+\n|0      |13022 |1002      |\n|0      |12525 |392       |\n|0      |14151 |353       |\n|0      |14148 |237       |\n|0      |154608|174       |\n|0      |95319 |166       |\n|0      |400740|162       |\n|0      |163416|146       |\n|0      |37969 |132       |\n|0      |832965|116       |\n+-------+------+----------+\nonly showing top 10 rows\n\ndf: org.apache.spark.sql.DataFrame = [cluster: int, vid: bigint, count(vid): bigint]\ndf_agg: org.apache.spark.sql.DataFrame = [cluster: int, vid: bigint, count(vid): bigint]\n"
+      "text" : "+-------+------+----------+\n|cluster|vid   |count(vid)|\n+-------+------+----------+\n|0      |46380 |2         |\n|0      |46995 |2         |\n|0      |22806 |2         |\n|0      |34817 |2         |\n|0      |739981|1         |\n|0      |58388 |1         |\n|0      |46988 |1         |\n|0      |350795|1         |\n|0      |46398 |1         |\n|0      |195026|1         |\n+-------+------+----------+\nonly showing top 10 rows\n\ndf: org.apache.spark.sql.DataFrame = [cluster: int, vid: bigint, count(vid): bigint]\ndf_agg: org.apache.spark.sql.DataFrame = [cluster: int, vid: bigint, count(vid): bigint]\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 43
+      "execution_count" : 64,
+      "time" : "Took: 3 seconds 451 milliseconds, at 2016-5-18 23:7"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "83A2E15EC98447B18204BB8ED3D2330D"
     },
     "cell_type" : "code",
     "source" : "val df_venues   = cc.sql(\"select vid, name , lat, lon from lbsn.venues\").as(\"venues\").cache()\nval df_agg_geo = df_agg.join(df_venues, df_agg(\"vid\") === df_venues(\"vid\"), \"inner\").\n                        select(\"cluster\", \"count(vid)\", \"venues.vid\", \"venues.lat\", \"venues.lon\",\"venues.name\")\n\ndf_agg_geo.show(10, false)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "+-------+----------+-------+-------------+--------------+----------------------+\n|cluster|count(vid)|vid    |lat          |lon           |name                  |\n+-------+----------+-------+-------------+--------------+----------------------+\n|8      |3         |492237 |40.726485986 |-73.9922754073|Bohemian              |\n|16     |6         |593529 |40.6886217864|-73.9928201319|BookCourt             |\n|8      |11        |434991 |40.7259694   |-73.9927525   |Il Buco               |\n|0      |2         |985483 |40.7603860333|-73.9848673667|Lace A Gentlemens Club|\n|3      |1         |200423 |40.7426789   |-74.0291473167|Hoboken Cottage       |\n|19     |2         |230019 |40.8092260833|-73.91703825  |Public School 30      |\n|8      |7         |421708 |40.7281926333|-73.9936398667|Other Music           |\n|15     |1         |1007123|40.7454773333|-74.0070350833|David Zwirner Gallery |\n|1      |3         |965448 |40.8129520167|-74.2072345333|Blockbuster           |\n|8      |2         |631540 |40.7340072297|-73.9929378036|Ramen Takumi          |\n+-------+----------+-------+-------------+--------------+----------------------+\nonly showing top 10 rows\n\ndf_venues: org.apache.spark.sql.DataFrame = [vid: bigint, name: string, lat: double, lon: double]\ndf_agg_geo: org.apache.spark.sql.DataFrame = [cluster: int, count(vid): bigint, vid: bigint, lat: double, lon: double, name: string]\n"
+      "text" : "+-------+----------+------+-------------+--------------+-------------------------------------+\n|cluster|count(vid)|vid   |lat          |lon           |name                                 |\n+-------+----------+------+-------------+--------------+-------------------------------------+\n|15     |1         |68812 |40.7320441465|-74.0035131042|Bleecker Street Pizza                |\n|0      |1         |513319|40.7337138   |-74.00304466  |Smalls                               |\n|9      |1         |549534|40.7434955917|-73.9999180145|Lasagna Ristorante                   |\n|9      |1         |482501|40.745225223 |-74.0057344027|Moran's Chelsea                      |\n|9      |1         |56831 |40.7412500066|-74.0049469471|Old Homestead Steak House            |\n|12     |1         |472366|40.6861692595|-74.1797861378|Dick Clark's American Bandstand Grill|\n|0      |1         |440651|40.7338915833|-74.0044516   |Black Fleece by Brooks Brothers      |\n|15     |1         |566329|40.7313970987|-74.0053868294|Cherry Lane Theater                  |\n|10     |1         |13048 |40.7437509602|-73.9933277438|Tekserve                             |\n|16     |1         |22501 |40.7564842984|-73.9974967501|37 Arts                              |\n+-------+----------+------+-------------+--------------+-------------------------------------+\nonly showing top 10 rows\n\ndf_venues: org.apache.spark.sql.DataFrame = [vid: bigint, name: string, lat: double, lon: double]\ndf_agg_geo: org.apache.spark.sql.DataFrame = [cluster: int, count(vid): bigint, vid: bigint, lat: double, lon: double, name: string]\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 44
+      "execution_count" : 65,
+      "time" : "Took: 1 second 141 milliseconds, at 2016-5-18 23:7"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "DACFCAC330AE4D84A2C863AD2AE2A733"
     },
     "cell_type" : "code",
     "source" : "// from dataframe to rdd\nval r = df_agg_geo.rdd.map(row => \n                        (row.getInt(0), (\n                          row.getLong(1), \n                          row.getLong(2), \n                          row.getDouble(3),\n                          row.getDouble(4),\n                          row.getString(5)))\n               )\n//.getInt(0), row.getLong(1), row.getLong(2), row._4, row._5, row._6)).cache()\nr.first",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "r: org.apache.spark.rdd.RDD[(Int, (Long, Long, Double, Double, String))] = MapPartitionsRDD[193] at map at <console>:102\nres37: (Int, (Long, Long, Double, Double, String)) = (0,(1002,13022,40.7527919861,-73.9772558212,Grand Central Terminal))\n"
+      "text" : "r: org.apache.spark.rdd.RDD[(Int, (Long, Long, Double, Double, String))] = MapPartitionsRDD[179] at map at <console>:113\nres60: (Int, (Long, Long, Double, Double, String)) = (0,(2,636806,40.7424611957,-74.0038740635,Hiro Ballroom))\n"
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "(0,(1002,13022,40.7527919861,-73.9772558212,Grand Central Terminal))"
+        "text/html" : "(0,(2,636806,40.7424611957,-74.0038740635,Hiro Ballroom))"
       },
       "output_type" : "execute_result",
-      "execution_count" : 45
+      "execution_count" : 33,
+      "time" : "Took: 566 milliseconds, at 2016-5-18 22:27"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "presentation" : {
+        "tabs_state" : "{\n  \"tab_id\": \"#tab1795556367-0\"\n}",
+        "pivot_chart_state" : "{\n  \"hiddenAttributes\": [],\n  \"menuLimit\": 200,\n  \"cols\": [],\n  \"rows\": [],\n  \"vals\": [],\n  \"exclusions\": {},\n  \"inclusions\": {},\n  \"unusedAttrsVertical\": 85,\n  \"autoSortUnusedAttrs\": false,\n  \"inclusionsInfo\": {},\n  \"aggregatorName\": \"Count\",\n  \"rendererName\": \"Table\"\n}"
+      },
+      "id" : "3FC85AA6C0E44353A5D63185487A5E4C"
     },
     "cell_type" : "code",
     "source" : "val topNPerGroup = r.groupByKey.map { \n   case (k, v) => \n       k -> v.toList.sortBy(-_._1).take(3)\n}\n\ntopNPerGroup.take(5)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "topNPerGroup: org.apache.spark.rdd.RDD[(Int, List[(Long, Long, Double, Double, String)])] = MapPartitionsRDD[195] at map at <console>:103\nres38: Array[(Int, List[(Long, Long, Double, Double, String)])] = Array((0,List((1002,13022,40.7527919861,-73.9772558212,Grand Central Terminal), (392,12525,40.7612551699,-73.977579698,The Museum of Modern Art (MoMA)), (353,14151,40.7587125693,-73.9785754681,Rockefeller Center))), (1,List((36,422229,40.83190315,-74.2113537167,RHM Headquarters), (20,146560,40.8289812956,-74.1403080873,AMC Clifton Commons 16), (20,179379,40.8175204184,-74.2117691317,Egan's))), (2,List((1643,23261,40.6438845363,-73.7828063965,JFK John F. Kennedy International), (325,17417,40.6457243197,-73.7757790089,JFK Terminal 5), (115,132282,40.6430053298,-73.782248497,Terminal 4 at ..."
+      "text" : "topNPerGroup: org.apache.spark.rdd.RDD[(Int, List[(Long, Long, Double, Double, String)])] = MapPartitionsRDD[181] at map at <console>:114\nres62: Array[(Int, List[(Long, Long, Double, Double, String)])] = Array((0,List((2,636806,40.7424611957,-74.0038740635,Hiro Ballroom), (1,378048,40.74207,-74.003975,Knoll Studios), (1,13274,40.7422044558,-73.9984585217,Dance Theater Workshop))), (1,List((26,23261,40.6438845363,-73.7828063965,JFK John F. Kennedy International), (1,201965,40.64452575,-73.7811048333,Airtrain), (1,265025,40.6468933369,-73.7839355374,Balducci's))), (2,List((5,24963,40.6912468675,-74.1795158386,EWR Newark Liberty International), (2,176536,40.687276885,-74.1826701164,EWR Terminal A), (1,472366,40.6861692595,-74.1797861378,Dick Clark's American Bandstand Grill))), (3,List((1,..."
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "<div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon23f0c66a54719db77b166d9efe1b1cb3&quot;,&quot;dataInit&quot;:[{&quot;_1&quot;:0,&quot;_2&quot;:[&quot;(1002,13022,40.7527919861,-73.9772558212,Grand Central Terminal)&quot;,&quot;(392,12525,40.7612551699,-73.977579698,The Museum of Modern Art (MoMA))&quot;,&quot;(353,14151,40.7587125693,-73.9785754681,Rockefeller Center)&quot;]},{&quot;_1&quot;:1,&quot;_2&quot;:[&quot;(36,422229,40.83190315,-74.2113537167,RHM Headquarters)&quot;,&quot;(20,146560,40.8289812956,-74.1403080873,AMC Clifton Commons 16)&quot;,&quot;(20,179379,40.8175204184,-74.2117691317,Egan's)&quot;]},{&quot;_1&quot;:2,&quot;_2&quot;:[&quot;(1643,23261,40.6438845363,-73.7828063965,JFK John F. Kennedy International)&quot;,&quot;(325,17417,40.6457243197,-73.7757790089,JFK Terminal 5)&quot;,&quot;(115,132282,40.6430053298,-73.782248497,Terminal 4 at JFK)&quot;]},{&quot;_1&quot;:3,&quot;_2&quot;:[&quot;(144,68644,40.7285271242,-74.0290546417,Holland Tunnel)&quot;,&quot;(113,176668,40.7616015574,-74.0749740601,Secaucus Junction)&quot;,&quot;(79,130812,40.7322101001,-74.0630757809,Journal Square PATH Station)&quot;]},{&quot;_1&quot;:4,&quot;_2&quot;:[&quot;(66,990606,40.8135818706,-74.0744376183,New Meadowlands Stadium)&quot;,&quot;(65,44690,40.9166258869,-74.0763473511,Garden State Plaza)&quot;,&quot;(57,1338531,40.9121909962,-74.0295374393,Retro Fitness)&quot;]}],&quot;genId&quot;:&quot;1818896430&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tabs'], \n      function(playground, _magictabs) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictabs,\n    \"o\": {}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n        <label for=\"input-anon83ea45bd060ca71446536f727e80b82b\">\n      Max Points (controlling all tabs)\n    </label><input id=\"input-anon83ea45bd060ca71446536f727e80b82b\" type=\"number\" name=\"input-anon83ea45bd060ca71446536f727e80b82b\" data-bind=\"textInput: value, fireChange: true, valueUpdate: 'input'\">\n      <script data-selector=\"#input-anon83ea45bd060ca71446536f727e80b82b\" data-this=\"{&quot;valueId&quot;:&quot;anon83ea45bd060ca71446536f727e80b82b&quot;,&quot;valueInit&quot;:25}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(\n ['observable', 'knockout'],\n function (Observable, ko) {\n   //console.log(\"-----------\")\n   //console.dir(this);\n   //console.dir(valueId);\n   var obs = Observable.makeObservable(valueId)\n                       .extend({ rateLimit: { //throttle\n                                   timeout: 500,\n                                   method: \"notifyWhenChangesStop\"\n                                 }\n                               }\n                       );\n   ko.applyBindings({\n     value: obs\n   }, this);\n   obs(valueInit);\n }\n)/*]]>*/</script>\n    </input>\n        <div>\n          <ul class=\"nav nav-tabs\" id=\"ul1818896430\"><li>\n                <a href=\"#tab1818896430-0\"><i class=\"fa fa-table\"/></a>\n              </li></ul>\n\n          <div class=\"tab-content\" id=\"tab1818896430\"><div class=\"tab-pane\" id=\"tab1818896430-0\">\n              <div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon8d6d05556ab41bc381fe01181f376f4e&quot;,&quot;dataInit&quot;:[{&quot;_1&quot;:0,&quot;_2&quot;:[&quot;(1002,13022,40.7527919861,-73.9772558212,Grand Central Terminal)&quot;,&quot;(392,12525,40.7612551699,-73.977579698,The Museum of Modern Art (MoMA))&quot;,&quot;(353,14151,40.7587125693,-73.9785754681,Rockefeller Center)&quot;]},{&quot;_1&quot;:1,&quot;_2&quot;:[&quot;(36,422229,40.83190315,-74.2113537167,RHM Headquarters)&quot;,&quot;(20,146560,40.8289812956,-74.1403080873,AMC Clifton Commons 16)&quot;,&quot;(20,179379,40.8175204184,-74.2117691317,Egan's)&quot;]},{&quot;_1&quot;:2,&quot;_2&quot;:[&quot;(1643,23261,40.6438845363,-73.7828063965,JFK John F. Kennedy International)&quot;,&quot;(325,17417,40.6457243197,-73.7757790089,JFK Terminal 5)&quot;,&quot;(115,132282,40.6430053298,-73.782248497,Terminal 4 at JFK)&quot;]},{&quot;_1&quot;:3,&quot;_2&quot;:[&quot;(144,68644,40.7285271242,-74.0290546417,Holland Tunnel)&quot;,&quot;(113,176668,40.7616015574,-74.0749740601,Secaucus Junction)&quot;,&quot;(79,130812,40.7322101001,-74.0630757809,Journal Square PATH Station)&quot;]},{&quot;_1&quot;:4,&quot;_2&quot;:[&quot;(66,990606,40.8135818706,-74.0744376183,New Meadowlands Stadium)&quot;,&quot;(65,44690,40.9166258869,-74.0763473511,Garden State Plaza)&quot;,&quot;(57,1338531,40.9121909962,-74.0295374393,Retro Fitness)&quot;]}],&quot;genId&quot;:&quot;1614995215&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tableChart'], \n      function(playground, _magictableChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictableChart,\n    \"o\": {\"headers\":[\"_1\",\"_2\"],\"width\":600,\"height\":400}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n        <label for=\"input-anon34aebea33dbf6359f5940afbcda05f9f\">\n      Max Points\n    </label><input id=\"input-anon34aebea33dbf6359f5940afbcda05f9f\" type=\"number\" name=\"input-anon34aebea33dbf6359f5940afbcda05f9f\" data-bind=\"textInput: value, fireChange: true, valueUpdate: 'input'\">\n      <script data-selector=\"#input-anon34aebea33dbf6359f5940afbcda05f9f\" data-this=\"{&quot;valueId&quot;:&quot;anon34aebea33dbf6359f5940afbcda05f9f&quot;,&quot;valueInit&quot;:25}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(\n ['observable', 'knockout'],\n function (Observable, ko) {\n   //console.log(\"-----------\")\n   //console.dir(this);\n   //console.dir(valueId);\n   var obs = Observable.makeObservable(valueId)\n                       .extend({ rateLimit: { //throttle\n                                   timeout: 500,\n                                   method: \"notifyWhenChangesStop\"\n                                 }\n                               }\n                       );\n   ko.applyBindings({\n     value: obs\n   }, this);\n   obs(valueInit);\n }\n)/*]]>*/</script>\n    </input>\n        <p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anone880a188a3cab5ab50f86d5f8d315076&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> <span style=\"color:red\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anon397e629315530f97d8eafe0708125dd6&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n        <div>\n        </div>\n      </div></div>\n              </div></div>\n        </div>\n      </div></div>"
+        "text/html" : "<div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anonc28e9d06db45b5dcf79f2d373c3825b7&quot;,&quot;dataInit&quot;:[],&quot;genId&quot;:&quot;1795556367&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tabs'], \n      function(playground, _magictabs) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictabs,\n    \"o\": {}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <div>\n        <ul class=\"nav nav-tabs\" id=\"ul1795556367\"><li>\n              <a href=\"#tab1795556367-0\"><i class=\"fa fa-table\"/></a>\n            </li><li>\n              <a href=\"#tab1795556367-1\"><i class=\"fa fa-cubes\"/></a>\n            </li></ul>\n\n        <div class=\"tab-content\" id=\"tab1795556367\"><div class=\"tab-pane\" id=\"tab1795556367-0\">\n            <div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anona7034d21206869596d7da38ca13d1f95&quot;,&quot;dataInit&quot;:[{&quot;_1&quot;:0,&quot;_2&quot;:[&quot;(2,636806,40.7424611957,-74.0038740635,Hiro Ballroom)&quot;,&quot;(1,378048,40.74207,-74.003975,Knoll Studios)&quot;,&quot;(1,13274,40.7422044558,-73.9984585217,Dance Theater Workshop)&quot;]},{&quot;_1&quot;:1,&quot;_2&quot;:[&quot;(26,23261,40.6438845363,-73.7828063965,JFK John F. Kennedy International)&quot;,&quot;(1,201965,40.64452575,-73.7811048333,Airtrain)&quot;,&quot;(1,265025,40.6468933369,-73.7839355374,Balducci's)&quot;]},{&quot;_1&quot;:2,&quot;_2&quot;:[&quot;(5,24963,40.6912468675,-74.1795158386,EWR Newark Liberty International)&quot;,&quot;(2,176536,40.687276885,-74.1826701164,EWR Terminal A)&quot;,&quot;(1,472366,40.6861692595,-74.1797861378,Dick Clark's American Bandstand Grill)&quot;]},{&quot;_1&quot;:3,&quot;_2&quot;:[&quot;(1,167064,40.6799041103,-73.9678496318,Weather Up)&quot;,&quot;(1,731109,40.6655374456,-73.9715158939,Prospect Park Picnic House)&quot;,&quot;(1,475790,40.6807890407,-73.9675174474,Cornelius)&quot;]},{&quot;_1&quot;:4,&quot;_2&quot;:[&quot;(2,11736,40.7036054,-74.0164375167,Castle Clinton National Monument)&quot;,&quot;(1,12037,40.7028651167,-74.0171241667,Statue of Liberty Ferry)&quot;,&quot;(1,409711,40.7030640333,-74.0165997167,The Immigrants)&quot;]}],&quot;genId&quot;:&quot;644332516&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tableChart'], \n      function(playground, _magictableChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictableChart,\n    \"o\": {\"headers\":[\"_1\",\"_2\"],\"width\":600,\"height\":400}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <span class=\"chart-total-item-count\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anon38e83f9dd5f4d47471b7019aff1e1533&quot;,&quot;initialValue&quot;:&quot;5&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> entries total</span>\n      <span class=\"chart-sampling-warning\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anonc3327d47f0a68f29a4275eab3be1dc34&quot;,&quot;initialValue&quot;:&quot;&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n      <div>\n      </div>\n    </div></div>\n            </div><div class=\"tab-pane\" id=\"tab1795556367-1\">\n            <div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anonecaba6dba5409640925d13881a4c4868&quot;,&quot;dataInit&quot;:[{&quot;_1&quot;:0,&quot;_2&quot;:[&quot;(2,636806,40.7424611957,-74.0038740635,Hiro Ballroom)&quot;,&quot;(1,378048,40.74207,-74.003975,Knoll Studios)&quot;,&quot;(1,13274,40.7422044558,-73.9984585217,Dance Theater Workshop)&quot;]},{&quot;_1&quot;:1,&quot;_2&quot;:[&quot;(26,23261,40.6438845363,-73.7828063965,JFK John F. Kennedy International)&quot;,&quot;(1,201965,40.64452575,-73.7811048333,Airtrain)&quot;,&quot;(1,265025,40.6468933369,-73.7839355374,Balducci's)&quot;]},{&quot;_1&quot;:2,&quot;_2&quot;:[&quot;(5,24963,40.6912468675,-74.1795158386,EWR Newark Liberty International)&quot;,&quot;(2,176536,40.687276885,-74.1826701164,EWR Terminal A)&quot;,&quot;(1,472366,40.6861692595,-74.1797861378,Dick Clark's American Bandstand Grill)&quot;]},{&quot;_1&quot;:3,&quot;_2&quot;:[&quot;(1,167064,40.6799041103,-73.9678496318,Weather Up)&quot;,&quot;(1,731109,40.6655374456,-73.9715158939,Prospect Park Picnic House)&quot;,&quot;(1,475790,40.6807890407,-73.9675174474,Cornelius)&quot;]},{&quot;_1&quot;:4,&quot;_2&quot;:[&quot;(2,11736,40.7036054,-74.0164375167,Castle Clinton National Monument)&quot;,&quot;(1,12037,40.7028651167,-74.0171241667,Statue of Liberty Ferry)&quot;,&quot;(1,409711,40.7030640333,-74.0165997167,The Immigrants)&quot;]}],&quot;genId&quot;:&quot;1622263170&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/pivotChart'], \n      function(playground, _magicpivotChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magicpivotChart,\n    \"o\": {\"width\":600,\"height\":400,\"derivedAttributes\":{},\"extraOptions\":{}}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <span class=\"chart-total-item-count\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anonb7ebdb47fce238369e13ac2ba8b4b30c&quot;,&quot;initialValue&quot;:&quot;5&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> entries total</span>\n      <span class=\"chart-sampling-warning\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anona2404a98d74bb72cfdaf8ca02112cc43&quot;,&quot;initialValue&quot;:&quot;&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n      <div>\n      </div>\n    </div></div>\n            </div></div>\n      </div>\n    </div></div>"
       },
       "output_type" : "execute_result",
-      "execution_count" : 46
+      "execution_count" : 34,
+      "time" : "Took: 1 second 119 milliseconds, at 2016-5-18 22:27"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "39C80E56975648CA896C01C746D69BF8"
     },
     "cell_type" : "code",
     "source" : "// flattening this to a single list\nval flattenedTopNPerGroup = \n    topNPerGroup.flatMap({case (k,v) => v.map(s => (k,s))})\n\nflattenedTopNPerGroup.take(9).foreach(println)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "(0,(1002,13022,40.7527919861,-73.9772558212,Grand Central Terminal))\n(0,(392,12525,40.7612551699,-73.977579698,The Museum of Modern Art (MoMA)))\n(0,(353,14151,40.7587125693,-73.9785754681,Rockefeller Center))\n(1,(36,422229,40.83190315,-74.2113537167,RHM Headquarters))\n(1,(20,146560,40.8289812956,-74.1403080873,AMC Clifton Commons 16))\n(1,(20,179379,40.8175204184,-74.2117691317,Egan's))\n(2,(1643,23261,40.6438845363,-73.7828063965,JFK John F. Kennedy International))\n(2,(325,17417,40.6457243197,-73.7757790089,JFK Terminal 5))\n(2,(115,132282,40.6430053298,-73.782248497,Terminal 4 at JFK))\nflattenedTopNPerGroup: org.apache.spark.rdd.RDD[(Int, (Long, Long, Double, Double, String))] = MapPartitionsRDD[196] at flatMap at <console>:107\n"
+      "text" : "(0,(2,636806,40.7424611957,-74.0038740635,Hiro Ballroom))\n(0,(1,378048,40.74207,-74.003975,Knoll Studios))\n(0,(1,13274,40.7422044558,-73.9984585217,Dance Theater Workshop))\n(1,(26,23261,40.6438845363,-73.7828063965,JFK John F. Kennedy International))\n(1,(1,201965,40.64452575,-73.7811048333,Airtrain))\n(1,(1,265025,40.6468933369,-73.7839355374,Balducci's))\n(2,(5,24963,40.6912468675,-74.1795158386,EWR Newark Liberty International))\n(2,(2,176536,40.687276885,-74.1826701164,EWR Terminal A))\n(2,(1,472366,40.6861692595,-74.1797861378,Dick Clark's American Bandstand Grill))\nflattenedTopNPerGroup: org.apache.spark.rdd.RDD[(Int, (Long, Long, Double, Double, String))] = MapPartitionsRDD[182] at flatMap at <console>:118\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 49
+      "execution_count" : 35,
+      "time" : "Took: 796 milliseconds, at 2016-5-18 22:27"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "presentation" : {
+        "tabs_state" : "{\n  \"tab_id\": \"#tab1210926712-0\"\n}",
+        "pivot_chart_state" : "{\n  \"hiddenAttributes\": [],\n  \"menuLimit\": 200,\n  \"cols\": [],\n  \"rows\": [],\n  \"vals\": [],\n  \"exclusions\": {},\n  \"inclusions\": {},\n  \"unusedAttrsVertical\": 85,\n  \"autoSortUnusedAttrs\": false,\n  \"inclusionsInfo\": {},\n  \"aggregatorName\": \"Count\",\n  \"rendererName\": \"Table\"\n}"
+      },
+      "id" : "BEF2501450974F969207CD88C35A79D2"
     },
     "cell_type" : "code",
     "source" : "case class VenueHotspot(\n            year: Int, \n            ts: org.joda.time.DateTime, \n            cid: Int,\n            count: Long,\n            vid:Long, \n            lat:Double, \n            lon:Double, \n            name:String)\n\nval now = new DateTime(DateTimeZone.UTC)\n\n// from dataframe to rdd\nval collection = flattenedTopNPerGroup.map(row => \n                      VenueHotspot(\n                        now.getYear(), \n                        now,\n                        row._1, \n                        row._2._1,\n                        row._2._2,\n                        row._2._3,\n                        row._2._4,\n                        row._2._5)\n                 )\n//.getInt(0), row.getLong(1), row.getLong(2), row._4, row._5, row._6)).cache()\ncollection.take(8)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "defined class VenueHotspot\nnow: org.joda.time.DateTime = 2015-12-16T17:05:26.064Z\ncollection: org.apache.spark.rdd.RDD[VenueHotspot] = MapPartitionsRDD[220] at map at <console>:81\nres55: Array[VenueHotspot] = Array(VenueHotspot(2015,2015-12-16T17:05:26.064Z,0,1002,13022,40.7527919861,-73.9772558212,Grand Central Terminal), VenueHotspot(2015,2015-12-16T17:05:26.064Z,0,392,12525,40.7612551699,-73.977579698,The Museum of Modern Art (MoMA)), VenueHotspot(2015,2015-12-16T17:05:26.064Z,0,353,14151,40.7587125693,-73.9785754681,Rockefeller Center), VenueHotspot(2015,2015-12-16T17:05:26.064Z,1,36,422229,40.83190315,-74.2113537167,RHM Headquarters), VenueHotspot(2015,2015-12-16T17:05:26.064Z,1,20,146560,40.8289812956,-74.1403080873,AMC Clifton Commons 16), VenueHotspot(2015,2015-12-16T17:05:26.06..."
+      "text" : "defined class VenueHotspot\nnow: org.joda.time.DateTime = 2016-05-18T20:27:29.359Z\ncollection: org.apache.spark.rdd.RDD[VenueHotspot] = MapPartitionsRDD[183] at map at <console>:91\nres66: Array[VenueHotspot] = Array(VenueHotspot(2016,2016-05-18T20:27:29.359Z,0,2,636806,40.7424611957,-74.0038740635,Hiro Ballroom), VenueHotspot(2016,2016-05-18T20:27:29.359Z,0,1,378048,40.74207,-74.003975,Knoll Studios), VenueHotspot(2016,2016-05-18T20:27:29.359Z,0,1,13274,40.7422044558,-73.9984585217,Dance Theater Workshop), VenueHotspot(2016,2016-05-18T20:27:29.359Z,1,26,23261,40.6438845363,-73.7828063965,JFK John F. Kennedy International), VenueHotspot(2016,2016-05-18T20:27:29.359Z,1,1,201965,40.64452575,-73.7811048333,Airtrain), VenueHotspot(2016,2016-05-18T20:27:29.359Z,1,1,265025,40.6468933369,-73.783..."
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "<div class=\"container-fluid\"><div><div class=\"col-md-12\"><div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon14ecf4fc4c606667e5d022f608628931&quot;,&quot;dataInit&quot;:[{&quot;name&quot;:&quot;Grand Central Terminal&quot;,&quot;count&quot;:1002,&quot;vid&quot;:13022,&quot;ts&quot;:&quot;2015-12-16T17:05:26.064Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:0,&quot;lon&quot;:-73.9772558212,&quot;lat&quot;:40.7527919861},{&quot;name&quot;:&quot;The Museum of Modern Art (MoMA)&quot;,&quot;count&quot;:392,&quot;vid&quot;:12525,&quot;ts&quot;:&quot;2015-12-16T17:05:26.064Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:0,&quot;lon&quot;:-73.977579698,&quot;lat&quot;:40.7612551699},{&quot;name&quot;:&quot;Rockefeller Center&quot;,&quot;count&quot;:353,&quot;vid&quot;:14151,&quot;ts&quot;:&quot;2015-12-16T17:05:26.064Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:0,&quot;lon&quot;:-73.9785754681,&quot;lat&quot;:40.7587125693},{&quot;name&quot;:&quot;RHM Headquarters&quot;,&quot;count&quot;:36,&quot;vid&quot;:422229,&quot;ts&quot;:&quot;2015-12-16T17:05:26.064Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:1,&quot;lon&quot;:-74.2113537167,&quot;lat&quot;:40.83190315},{&quot;name&quot;:&quot;AMC Clifton Commons 16&quot;,&quot;count&quot;:20,&quot;vid&quot;:146560,&quot;ts&quot;:&quot;2015-12-16T17:05:26.064Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:1,&quot;lon&quot;:-74.1403080873,&quot;lat&quot;:40.8289812956},{&quot;name&quot;:&quot;Egan's&quot;,&quot;count&quot;:20,&quot;vid&quot;:179379,&quot;ts&quot;:&quot;2015-12-16T17:05:26.064Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:1,&quot;lon&quot;:-74.2117691317,&quot;lat&quot;:40.8175204184},{&quot;name&quot;:&quot;JFK John F. Kennedy International&quot;,&quot;count&quot;:1643,&quot;vid&quot;:23261,&quot;ts&quot;:&quot;2015-12-16T17:05:26.064Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:2,&quot;lon&quot;:-73.7828063965,&quot;lat&quot;:40.6438845363},{&quot;name&quot;:&quot;JFK Terminal 5&quot;,&quot;count&quot;:325,&quot;vid&quot;:17417,&quot;ts&quot;:&quot;2015-12-16T17:05:26.064Z&quot;,&quot;year&quot;:2015,&quot;cid&quot;:2,&quot;lon&quot;:-73.7757790089,&quot;lat&quot;:40.6457243197}],&quot;genId&quot;:&quot;1640212902&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tableChart'], \n      function(playground, _magictableChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictableChart,\n    \"o\": {\"headers\":[\"year\",\"ts\",\"cid\",\"count\",\"vid\",\"lat\",\"lon\",\"name\"],\"width\":600,\"height\":400}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n        <label for=\"input-anon767d7fed06829b4ead70f97243a64b68\">\n      Max Points\n    </label><input id=\"input-anon767d7fed06829b4ead70f97243a64b68\" type=\"number\" name=\"input-anon767d7fed06829b4ead70f97243a64b68\" data-bind=\"textInput: value, fireChange: true, valueUpdate: 'input'\">\n      <script data-selector=\"#input-anon767d7fed06829b4ead70f97243a64b68\" data-this=\"{&quot;valueId&quot;:&quot;anon767d7fed06829b4ead70f97243a64b68&quot;,&quot;valueInit&quot;:25}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(\n ['observable', 'knockout'],\n function (Observable, ko) {\n   //console.log(\"-----------\")\n   //console.dir(this);\n   //console.dir(valueId);\n   var obs = Observable.makeObservable(valueId)\n                       .extend({ rateLimit: { //throttle\n                                   timeout: 500,\n                                   method: \"notifyWhenChangesStop\"\n                                 }\n                               }\n                       );\n   ko.applyBindings({\n     value: obs\n   }, this);\n   obs(valueInit);\n }\n)/*]]>*/</script>\n    </input>\n        <p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anon631919c5c885943d1ce877a8307f6a09&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> <span style=\"color:red\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anoncaddef2865a7fbd5df54f80793a71d8f&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n        <div>\n        </div>\n      </div></div></div></div></div>"
+        "text/html" : "<div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon60bbb6c4304e5b0aecfb4084d610d2ac&quot;,&quot;dataInit&quot;:[],&quot;genId&quot;:&quot;1210926712&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tabs'], \n      function(playground, _magictabs) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictabs,\n    \"o\": {}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <div>\n        <ul class=\"nav nav-tabs\" id=\"ul1210926712\"><li>\n              <a href=\"#tab1210926712-0\"><i class=\"fa fa-table\"/></a>\n            </li><li>\n              <a href=\"#tab1210926712-1\"><i class=\"fa fa-cubes\"/></a>\n            </li></ul>\n\n        <div class=\"tab-content\" id=\"tab1210926712\"><div class=\"tab-pane\" id=\"tab1210926712-0\">\n            <div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon980f9effa407a8599dc223eb73f79d76&quot;,&quot;dataInit&quot;:[{&quot;name&quot;:&quot;Hiro Ballroom&quot;,&quot;count&quot;:2,&quot;vid&quot;:636806,&quot;ts&quot;:&quot;2016-05-18T20:27:29.359Z&quot;,&quot;year&quot;:2016,&quot;cid&quot;:0,&quot;lon&quot;:-74.0038740635,&quot;lat&quot;:40.7424611957},{&quot;name&quot;:&quot;Knoll Studios&quot;,&quot;count&quot;:1,&quot;vid&quot;:378048,&quot;ts&quot;:&quot;2016-05-18T20:27:29.359Z&quot;,&quot;year&quot;:2016,&quot;cid&quot;:0,&quot;lon&quot;:-74.003975,&quot;lat&quot;:40.74207},{&quot;name&quot;:&quot;Dance Theater Workshop&quot;,&quot;count&quot;:1,&quot;vid&quot;:13274,&quot;ts&quot;:&quot;2016-05-18T20:27:29.359Z&quot;,&quot;year&quot;:2016,&quot;cid&quot;:0,&quot;lon&quot;:-73.9984585217,&quot;lat&quot;:40.7422044558},{&quot;name&quot;:&quot;JFK John F. Kennedy International&quot;,&quot;count&quot;:26,&quot;vid&quot;:23261,&quot;ts&quot;:&quot;2016-05-18T20:27:29.359Z&quot;,&quot;year&quot;:2016,&quot;cid&quot;:1,&quot;lon&quot;:-73.7828063965,&quot;lat&quot;:40.6438845363},{&quot;name&quot;:&quot;Airtrain&quot;,&quot;count&quot;:1,&quot;vid&quot;:201965,&quot;ts&quot;:&quot;2016-05-18T20:27:29.359Z&quot;,&quot;year&quot;:2016,&quot;cid&quot;:1,&quot;lon&quot;:-73.7811048333,&quot;lat&quot;:40.64452575},{&quot;name&quot;:&quot;Balducci's&quot;,&quot;count&quot;:1,&quot;vid&quot;:265025,&quot;ts&quot;:&quot;2016-05-18T20:27:29.359Z&quot;,&quot;year&quot;:2016,&quot;cid&quot;:1,&quot;lon&quot;:-73.7839355374,&quot;lat&quot;:40.6468933369},{&quot;name&quot;:&quot;EWR Newark Liberty International&quot;,&quot;count&quot;:5,&quot;vid&quot;:24963,&quot;ts&quot;:&quot;2016-05-18T20:27:29.359Z&quot;,&quot;year&quot;:2016,&quot;cid&quot;:2,&quot;lon&quot;:-74.1795158386,&quot;lat&quot;:40.6912468675},{&quot;name&quot;:&quot;EWR Terminal A&quot;,&quot;count&quot;:2,&quot;vid&quot;:176536,&quot;ts&quot;:&quot;2016-05-18T20:27:29.359Z&quot;,&quot;year&quot;:2016,&quot;cid&quot;:2,&quot;lon&quot;:-74.1826701164,&quot;lat&quot;:40.687276885}],&quot;genId&quot;:&quot;353273549&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tableChart'], \n      function(playground, _magictableChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictableChart,\n    \"o\": {\"headers\":[\"year\",\"ts\",\"cid\",\"count\",\"vid\",\"lat\",\"lon\",\"name\"],\"width\":600,\"height\":400}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <span class=\"chart-total-item-count\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anon6868e9922257b32f1796fa61f2a0bf8f&quot;,&quot;initialValue&quot;:&quot;8&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> entries total</span>\n      <span class=\"chart-sampling-warning\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anon8c717b91e846608f368db959365f4a5d&quot;,&quot;initialValue&quot;:&quot;&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n      <div>\n      </div>\n    </div></div>\n            </div><div class=\"tab-pane\" id=\"tab1210926712-1\">\n            <div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon76c9b8dec6186dee860d094ef6352d65&quot;,&quot;dataInit&quot;:[{&quot;name&quot;:&quot;Hiro Ballroom&quot;,&quot;count&quot;:2,&quot;vid&quot;:636806,&quot;ts&quot;:&quot;2016-05-18T20:27:29.359Z&quot;,&quot;year&quot;:2016,&quot;cid&quot;:0,&quot;lon&quot;:-74.0038740635,&quot;lat&quot;:40.7424611957},{&quot;name&quot;:&quot;Knoll Studios&quot;,&quot;count&quot;:1,&quot;vid&quot;:378048,&quot;ts&quot;:&quot;2016-05-18T20:27:29.359Z&quot;,&quot;year&quot;:2016,&quot;cid&quot;:0,&quot;lon&quot;:-74.003975,&quot;lat&quot;:40.74207},{&quot;name&quot;:&quot;Dance Theater Workshop&quot;,&quot;count&quot;:1,&quot;vid&quot;:13274,&quot;ts&quot;:&quot;2016-05-18T20:27:29.359Z&quot;,&quot;year&quot;:2016,&quot;cid&quot;:0,&quot;lon&quot;:-73.9984585217,&quot;lat&quot;:40.7422044558},{&quot;name&quot;:&quot;JFK John F. Kennedy International&quot;,&quot;count&quot;:26,&quot;vid&quot;:23261,&quot;ts&quot;:&quot;2016-05-18T20:27:29.359Z&quot;,&quot;year&quot;:2016,&quot;cid&quot;:1,&quot;lon&quot;:-73.7828063965,&quot;lat&quot;:40.6438845363},{&quot;name&quot;:&quot;Airtrain&quot;,&quot;count&quot;:1,&quot;vid&quot;:201965,&quot;ts&quot;:&quot;2016-05-18T20:27:29.359Z&quot;,&quot;year&quot;:2016,&quot;cid&quot;:1,&quot;lon&quot;:-73.7811048333,&quot;lat&quot;:40.64452575},{&quot;name&quot;:&quot;Balducci's&quot;,&quot;count&quot;:1,&quot;vid&quot;:265025,&quot;ts&quot;:&quot;2016-05-18T20:27:29.359Z&quot;,&quot;year&quot;:2016,&quot;cid&quot;:1,&quot;lon&quot;:-73.7839355374,&quot;lat&quot;:40.6468933369},{&quot;name&quot;:&quot;EWR Newark Liberty International&quot;,&quot;count&quot;:5,&quot;vid&quot;:24963,&quot;ts&quot;:&quot;2016-05-18T20:27:29.359Z&quot;,&quot;year&quot;:2016,&quot;cid&quot;:2,&quot;lon&quot;:-74.1795158386,&quot;lat&quot;:40.6912468675},{&quot;name&quot;:&quot;EWR Terminal A&quot;,&quot;count&quot;:2,&quot;vid&quot;:176536,&quot;ts&quot;:&quot;2016-05-18T20:27:29.359Z&quot;,&quot;year&quot;:2016,&quot;cid&quot;:2,&quot;lon&quot;:-74.1826701164,&quot;lat&quot;:40.687276885}],&quot;genId&quot;:&quot;107269358&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/pivotChart'], \n      function(playground, _magicpivotChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magicpivotChart,\n    \"o\": {\"width\":600,\"height\":400,\"derivedAttributes\":{},\"extraOptions\":{}}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <span class=\"chart-total-item-count\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anond27315d1b97d4fe58e6d14ee684cc342&quot;,&quot;initialValue&quot;:&quot;8&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> entries total</span>\n      <span class=\"chart-sampling-warning\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anon6790e23ddf5bb066edd485d9d9b95373&quot;,&quot;initialValue&quot;:&quot;&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n      <div>\n      </div>\n    </div></div>\n            </div></div>\n      </div>\n    </div></div>"
       },
       "output_type" : "execute_result",
-      "execution_count" : 64
+      "execution_count" : 36,
+      "time" : "Took: 900 milliseconds, at 2016-5-18 22:27"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "3675E64CC8B34A55A6569DEFDC79D7EE"
     },
     "cell_type" : "code",
     "source" : "collection.saveToCassandra(\"lbsn\", \"venues_hotspots\")",
@@ -699,33 +794,37 @@
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 65
+      "execution_count" : 37,
+      "time" : "Took: 3 seconds 194 milliseconds, at 2016-5-18 22:27"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "B5EE3793F90A49F886CC183B06638D7E"
     },
     "cell_type" : "code",
     "source" : "val checkins = cc.sql(\"select * from lbsn.venues_hotspots\")\ncheckins",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "checkins: org.apache.spark.sql.DataFrame = [year: int, ts: timestamp, cid: int, lat: double, lon: double, name: string, vid: bigint]\nres58: org.apache.spark.sql.DataFrame = [year: int, ts: timestamp, cid: int, lat: double, lon: double, name: string, vid: bigint]\n"
+      "text" : "checkins: org.apache.spark.sql.DataFrame = [year: int, ts: timestamp, cid: int, lat: double, lon: double, name: string, vid: bigint]\nres70: org.apache.spark.sql.DataFrame = [year: int, ts: timestamp, cid: int, lat: double, lon: double, name: string, vid: bigint]\n"
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "<div class=\"df-canvas\">\n      <script data-this=\"{&quot;dataId&quot;:&quot;anonea9ff170a030160a8d7aee709816f813&quot;,&quot;partitionIndexId&quot;:&quot;anon9d53c2ba9cf7e05fd9ae1eab3ce84d43&quot;,&quot;numPartitions&quot;:5,&quot;dfSchema&quot;:{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;name&quot;:&quot;year&quot;,&quot;type&quot;:&quot;integer&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;ts&quot;,&quot;type&quot;:&quot;timestamp&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;cid&quot;,&quot;type&quot;:&quot;integer&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;lat&quot;,&quot;type&quot;:&quot;double&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;lon&quot;,&quot;type&quot;:&quot;double&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;name&quot;,&quot;type&quot;:&quot;string&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;vid&quot;,&quot;type&quot;:&quot;long&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}}]}}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/dataframe','../javascripts/notebook/consoleDir'], \n      function(dataframe, extension) {\n        dataframe.call(data, this, extension);\n      }\n    );/*]]>*/</script>\n      <link rel=\"stylesheet\" href=\"/assets/stylesheets/ipython/css/dataframe.css\" type=\"text/css\"/>\n    </div>"
+        "text/html" : "<div class=\"df-canvas\">\n      <script data-this=\"{&quot;dataId&quot;:&quot;anoncea64c355045be8dc492a7b17231b4b7&quot;,&quot;partitionIndexId&quot;:&quot;anonf1585891960c6e413f21d3aa81e593e2&quot;,&quot;numPartitions&quot;:1,&quot;dfSchema&quot;:{&quot;type&quot;:&quot;struct&quot;,&quot;fields&quot;:[{&quot;name&quot;:&quot;year&quot;,&quot;type&quot;:&quot;integer&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;ts&quot;,&quot;type&quot;:&quot;timestamp&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;cid&quot;,&quot;type&quot;:&quot;integer&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;lat&quot;,&quot;type&quot;:&quot;double&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;lon&quot;,&quot;type&quot;:&quot;double&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;name&quot;,&quot;type&quot;:&quot;string&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}},{&quot;name&quot;:&quot;vid&quot;,&quot;type&quot;:&quot;long&quot;,&quot;nullable&quot;:true,&quot;metadata&quot;:{}}]}}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/dataframe','../javascripts/notebook/consoleDir'], \n      function(dataframe, extension) {\n        dataframe.call(data, this, extension);\n      }\n    );/*]]>*/</script>\n      <link rel=\"stylesheet\" href=\"/assets/stylesheets/ipython/css/dataframe.css\" type=\"text/css\"/>\n    </div>"
       },
       "output_type" : "execute_result",
-      "execution_count" : 67
+      "execution_count" : 38,
+      "time" : "Took: 1 second 319 milliseconds, at 2016-5-18 22:27"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : true
+      "collapsed" : true,
+      "id" : "F35756D98373441DA7832AA28C967D0B"
     },
     "cell_type" : "code",
     "source" : "",

@@ -9,9 +9,9 @@
       "codemirror_mode" : "text/x-scala"
     },
     "trusted" : true,
-    "customLocalRepo" : "~/.m2/repository",
+    "customLocalRepo" : "/tmp/repository",
     "customRepos" : null,
-    "customDeps" : [ "com.datastax.spark:spark-cassandra-connector_2.10:1.5.0-M1", "org.scalanlp:nak_2.11:1.3" ],
+    "customDeps" : [ "com.datastax.spark:spark-cassandra-connector_2.10:1.6.0-M2", "org.scalanlp:nak_2.11:1.3" ],
     "customImports" : null,
     "customArgs" : null,
     "customSparkConf" : {
@@ -22,110 +22,133 @@
     }
   },
   "cells" : [ {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "89502B0C7F814D5E826CC224A22B941F"
+    },
     "cell_type" : "markdown",
     "source" : "# DBSCAN algorithm applied per user"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "EB74DDC093554F03A377547970D27B12"
     },
     "cell_type" : "code",
     "source" : "sc.version",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "res2: String = 1.5.1\n"
+      "text" : "res2: String = 1.6.1\n"
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "1.5.1"
+        "text/html" : "1.6.1"
       },
       "output_type" : "execute_result",
-      "execution_count" : 1
+      "execution_count" : 1,
+      "time" : "Took: 810 milliseconds, at 2016-5-18 22:18"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "76D820F45FCD42A58E447A36EB34D2AF"
+    },
     "cell_type" : "markdown",
     "source" : "# Setting up Cassandra"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "20E7D8977E2349FA8C3803761C18BD1D"
     },
     "cell_type" : "code",
     "source" : "import com.datastax.spark.connector._\nimport com.datastax.spark.connector.cql._\n\n//initiate the cassandra sql context\nimport org.apache.spark.sql.cassandra.CassandraSQLContext\nval csc = new CassandraSQLContext(sc)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "import com.datastax.spark.connector._\nimport com.datastax.spark.connector.cql._\nimport org.apache.spark.sql.cassandra.CassandraSQLContext\ncsc: org.apache.spark.sql.cassandra.CassandraSQLContext = org.apache.spark.sql.cassandra.CassandraSQLContext@2614eb40\n"
-    }, {
-      "metadata" : { },
-      "data" : {
-        "text/html" : "org.apache.spark.sql.cassandra.CassandraSQLContext@2614eb40"
-      },
-      "output_type" : "execute_result",
-      "execution_count" : 2
-    } ]
-  }, {
-    "metadata" : { },
-    "cell_type" : "markdown",
-    "source" : "# Read in the check-ins"
-  }, {
-    "metadata" : {
-      "trusted" : true,
-      "input_collapsed" : false,
-      "collapsed" : false
-    },
-    "cell_type" : "code",
-    "source" : "val df = csc.sql(\"select ts, uid, lat, lon from lbsn.checkins\")\ndf.show(5,false)",
-    "outputs" : [ {
-      "name" : "stdout",
-      "output_type" : "stream",
-      "text" : "+---------------------+-----+------------------+------------------+\n|ts                   |uid  |lat               |lon               |\n+---------------------+-----+------------------+------------------+\n|2010-07-01 02:00:11.0|74226|40.75548535       |-73.99116677      |\n|2010-07-01 02:00:16.0|4359 |40.7904052771     |-73.9750766621    |\n|2010-07-01 02:00:35.0|29149|40.750353706599995|-73.9929306507    |\n|2010-07-01 02:03:30.0|10231|40.663200646      |-73.984763295     |\n|2010-07-01 02:06:29.0|4907 |40.74101965       |-73.99416911670001|\n+---------------------+-----+------------------+------------------+\nonly showing top 5 rows\n\ndf: org.apache.spark.sql.DataFrame = [ts: timestamp, uid: bigint, lat: double, lon: double]\n"
+      "text" : "import com.datastax.spark.connector._\nimport com.datastax.spark.connector.cql._\nimport org.apache.spark.sql.cassandra.CassandraSQLContext\ncsc: org.apache.spark.sql.cassandra.CassandraSQLContext = org.apache.spark.sql.cassandra.CassandraSQLContext@1d3dcf2c\n"
     }, {
       "metadata" : { },
       "data" : {
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 3
+      "execution_count" : 2,
+      "time" : "Took: 856 milliseconds, at 2016-5-18 22:18"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "D13519C5916F491481F44AA8599EC197"
+    },
+    "cell_type" : "markdown",
+    "source" : "# Read in the check-ins"
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "9FBBDC7751FE4F1D8CBEF8DC5F23C8F5"
+    },
+    "cell_type" : "code",
+    "source" : "val df = csc.sql(\"select ts, uid, lat, lon from lbsn.checkins\")\ndf.show(5,false)",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "+---------------------+---+------------------+--------------+\n|ts                   |uid|lat               |lon           |\n+---------------------+---+------------------+--------------+\n|2010-07-01 02:00:00.0|40 |40.7745781069     |-73.8720059395|\n|2010-07-02 02:00:00.0|22 |40.7613333866     |-73.9504659176|\n|2010-07-06 02:00:00.0|22 |40.723510469299995|-73.9884352684|\n|2010-07-08 02:00:00.0|22 |40.76978445       |-73.9648129333|\n|2010-07-08 02:00:00.0|22 |40.7700679846     |-73.9655471674|\n+---------------------+---+------------------+--------------+\nonly showing top 5 rows\n\ndf: org.apache.spark.sql.DataFrame = [ts: timestamp, uid: bigint, lat: double, lon: double]\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 3,
+      "time" : "Took: 4 seconds 841 milliseconds, at 2016-5-18 22:19"
+    } ]
+  }, {
+    "metadata" : {
+      "id" : "7A1B2B01076B47E8A616B5B4E55CE66A"
+    },
     "cell_type" : "markdown",
     "source" : "#Aggregating data per user as a PairRDD\nAll checkins as a Matrix of lat,lon as the value for the given user id"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "presentation" : {
+        "tabs_state" : "{\n  \"tab_id\": \"#tab1492374898-0\"\n}",
+        "pivot_chart_state" : "{\n  \"hiddenAttributes\": [],\n  \"menuLimit\": 200,\n  \"cols\": [],\n  \"rows\": [],\n  \"vals\": [],\n  \"exclusions\": {},\n  \"inclusions\": {},\n  \"unusedAttrsVertical\": 85,\n  \"autoSortUnusedAttrs\": false,\n  \"inclusionsInfo\": {},\n  \"aggregatorName\": \"Count\",\n  \"rendererName\": \"Table\"\n}"
+      },
+      "id" : "D0572CD6502C42B192A3488137986249"
     },
     "cell_type" : "code",
     "source" : "import breeze.linalg.DenseMatrix\n\nval checkinsRdd = df.map(row => (row.getLong(1), Array(row.getDouble(2), row.getDouble(3))) ).\n                     reduceByKey( _ ++ _).\n                     mapValues(v => new DenseMatrix(v.length/2,2,v, 0, 2, true))\n\ncheckinsRdd.take(1)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "import breeze.linalg.DenseMatrix\ncheckinsRdd: org.apache.spark.rdd.RDD[(Long, breeze.linalg.DenseMatrix[Double])] = MapPartitionsRDD[9] at mapValues at <console>:62\nres4: Array[(Long, breeze.linalg.DenseMatrix[Double])] = \nArray((15474,40.8379525833       -73.70209875        \n40.6997066969       -73.8085234165      \n40.7484436586       -73.9857316017      \n40.750613794        -73.993434906       \n40.74948412         -73.99181872        \n40.756879967399996  -73.98622512819999  \n40.7515322195       -73.9939820766      \n40.742396165900004  -74.0075433254      \n40.73267364         -74.00319576        \n40.7500689          -73.99229824        \n40.750353706599995  -73.9929306507      \n40.702439642899996  -73.81683826449999  \n40.5738931667       -73.9755201667      \n40.5732845667       -73.9797..."
+      "text" : "import breeze.linalg.DenseMatrix\ncheckinsRdd: org.apache.spark.rdd.RDD[(Long, breeze.linalg.DenseMatrix[Double])] = MapPartitionsRDD[9] at mapValues at <console>:75\nres7: Array[(Long, breeze.linalg.DenseMatrix[Double])] = \nArray((39,40.7691708833       -73.98161       \n40.759420158800005  -73.9830281097  ))\n"
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "<div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anone046536697cc0728aa5ea84a37a2df18&quot;,&quot;dataInit&quot;:[{&quot;_1&quot;:15474,&quot;_2&quot;:&quot;40.8379525833       -73.70209875        \\n40.6997066969       -73.8085234165      \\n40.7484436586       -73.9857316017      \\n40.750613794        -73.993434906       \\n40.74948412         -73.99181872        \\n40.756879967399996  -73.98622512819999  \\n40.7515322195       -73.9939820766      \\n40.742396165900004  -74.0075433254      \\n40.73267364         -74.00319576        \\n40.7500689          -73.99229824        \\n40.750353706599995  -73.9929306507      \\n40.702439642899996  -73.81683826449999  \\n40.5738931667       -73.9755201667      \\n40.5732845667       -73.9797481667      \\n40.6997066969       -73.8085234165      \\n40.750353706599995  -73.9929306507      \\n40.749520000000004  -73.98390500000001  \\n40.736531           -73.99375699999999  \\n40.7377432142       -74.0050900164      \\n40.7372462333       -74.0054466167      \\n40.750613794        -73.993434906       \\n40.74948412         -73.99181872        \\n40.6997066969       -73.8085234165      \\n40.6997066969       -73.8085234165      \\n40.756497999699995  -73.9734685421      \\n40.7565398408       -73.9738121999      \\n40.7805414319       -73.9668273926      \\n40.756879967399996  -73.98622512819999  \\n40.7625067167       -73.9680504667      \\n40.756497999699995  -73.9734685421      \\n40.7565398408       -73.9738121999      \\n40.8538124533       -73.8777780533      \\n40.750353706599995  -73.9929306507      \\n40.6997066969       -73.8085234165      \\n40.6997066969       -73.8085234165      \\n40.750353706599995  -73.9929306507      \\n40.750613794        -73.993434906       \\n40.7679723279       -73.98186922069999  \\n40.826946067        -73.92811775210001  \\n40.75106239         -73.993954385       \\n40.6997066969       -73.8085234165      \\n40.6997066969       -73.8085234165      \\n40.750353706599995  -73.9929306507      \\n40.7346571745       -73.9903771877      \\n40.7050331333       -74.0016958         \\n40.750613794        -73.993434906       \\n40.750353706599995  -73.9929306507      \\n40.702439642899996  -73.81683826449999  \\n40.6997066969       -73.8085234165      \\n40.750353706599995  -73.9929306507      \\n40.7529089392       -73.9966748478      \\n40.7293820333       -73.9895765         \\n40.750353706599995  -73.9929306507      \\n40.6997066969       -73.8085234165      \\n40.6792802333       -73.9835258667      \\n40.8379525833       -73.70209875        \\n40.6997066969       -73.8085234165      \\n40.703357399999994  -74.013322229       \\n40.693143633000005  -74.0161155         \\n40.693143633000005  -74.0161155         \\n40.750353706599995  -73.9929306507      \\n40.750613794        -73.993434906       \\n40.702439642899996  -73.81683826449999  \\n40.6997066969       -73.8085234165      \\n40.750353706599995  -73.9929306507      \\n40.750613794        -73.993434906       \\n40.7805414319       -73.9668273926      \\n40.750613794        -73.993434906       \\n40.750353706599995  -73.9929306507      \\n40.6997066969       -73.8085234165      \\n40.750353706599995  -73.9929306507      \\n40.6997066969       -73.8085234165      \\n40.8538124533       -73.8777780533      \\n40.750353706599995  -73.9929306507      \\n40.7422010764       -73.9879953861      \\n40.7359822967       -73.9902806282      \\n40.750353706599995  -73.9929306507      \\n40.6997066969       -73.8085234165      \\n40.7505545          -73.99223017        \\n... (92 total)&quot;}],&quot;genId&quot;:&quot;1856376924&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tabs'], \n      function(playground, _magictabs) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictabs,\n    \"o\": {}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n        <label for=\"input-anone3386fde9f549b1a8b607d18c2ca3d69\">\n      Max Points (controlling all tabs)\n    </label><input id=\"input-anone3386fde9f549b1a8b607d18c2ca3d69\" type=\"number\" name=\"input-anone3386fde9f549b1a8b607d18c2ca3d69\" data-bind=\"textInput: value, fireChange: true, valueUpdate: 'input'\">\n      <script data-selector=\"#input-anone3386fde9f549b1a8b607d18c2ca3d69\" data-this=\"{&quot;valueId&quot;:&quot;anone3386fde9f549b1a8b607d18c2ca3d69&quot;,&quot;valueInit&quot;:25}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(\n ['observable', 'knockout'],\n function (Observable, ko) {\n   //console.log(\"-----------\")\n   //console.dir(this);\n   //console.dir(valueId);\n   var obs = Observable.makeObservable(valueId)\n                       .extend({ rateLimit: { //throttle\n                                   timeout: 500,\n                                   method: \"notifyWhenChangesStop\"\n                                 }\n                               }\n                       );\n   ko.applyBindings({\n     value: obs\n   }, this);\n   obs(valueInit);\n }\n)/*]]>*/</script>\n    </input>\n        <div>\n          <ul class=\"nav nav-tabs\" id=\"ul1856376924\"><li>\n                <a href=\"#tab1856376924-0\"><i class=\"fa fa-table\"/></a>\n              </li></ul>\n\n          <div class=\"tab-content\" id=\"tab1856376924\"><div class=\"tab-pane\" id=\"tab1856376924-0\">\n              <div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon8258fedd7bf85fd8bee0494e2b70cccd&quot;,&quot;dataInit&quot;:[{&quot;_1&quot;:15474,&quot;_2&quot;:&quot;40.8379525833       -73.70209875        \\n40.6997066969       -73.8085234165      \\n40.7484436586       -73.9857316017      \\n40.750613794        -73.993434906       \\n40.74948412         -73.99181872        \\n40.756879967399996  -73.98622512819999  \\n40.7515322195       -73.9939820766      \\n40.742396165900004  -74.0075433254      \\n40.73267364         -74.00319576        \\n40.7500689          -73.99229824        \\n40.750353706599995  -73.9929306507      \\n40.702439642899996  -73.81683826449999  \\n40.5738931667       -73.9755201667      \\n40.5732845667       -73.9797481667      \\n40.6997066969       -73.8085234165      \\n40.750353706599995  -73.9929306507      \\n40.749520000000004  -73.98390500000001  \\n40.736531           -73.99375699999999  \\n40.7377432142       -74.0050900164      \\n40.7372462333       -74.0054466167      \\n40.750613794        -73.993434906       \\n40.74948412         -73.99181872        \\n40.6997066969       -73.8085234165      \\n40.6997066969       -73.8085234165      \\n40.756497999699995  -73.9734685421      \\n40.7565398408       -73.9738121999      \\n40.7805414319       -73.9668273926      \\n40.756879967399996  -73.98622512819999  \\n40.7625067167       -73.9680504667      \\n40.756497999699995  -73.9734685421      \\n40.7565398408       -73.9738121999      \\n40.8538124533       -73.8777780533      \\n40.750353706599995  -73.9929306507      \\n40.6997066969       -73.8085234165      \\n40.6997066969       -73.8085234165      \\n40.750353706599995  -73.9929306507      \\n40.750613794        -73.993434906       \\n40.7679723279       -73.98186922069999  \\n40.826946067        -73.92811775210001  \\n40.75106239         -73.993954385       \\n40.6997066969       -73.8085234165      \\n40.6997066969       -73.8085234165      \\n40.750353706599995  -73.9929306507      \\n40.7346571745       -73.9903771877      \\n40.7050331333       -74.0016958         \\n40.750613794        -73.993434906       \\n40.750353706599995  -73.9929306507      \\n40.702439642899996  -73.81683826449999  \\n40.6997066969       -73.8085234165      \\n40.750353706599995  -73.9929306507      \\n40.7529089392       -73.9966748478      \\n40.7293820333       -73.9895765         \\n40.750353706599995  -73.9929306507      \\n40.6997066969       -73.8085234165      \\n40.6792802333       -73.9835258667      \\n40.8379525833       -73.70209875        \\n40.6997066969       -73.8085234165      \\n40.703357399999994  -74.013322229       \\n40.693143633000005  -74.0161155         \\n40.693143633000005  -74.0161155         \\n40.750353706599995  -73.9929306507      \\n40.750613794        -73.993434906       \\n40.702439642899996  -73.81683826449999  \\n40.6997066969       -73.8085234165      \\n40.750353706599995  -73.9929306507      \\n40.750613794        -73.993434906       \\n40.7805414319       -73.9668273926      \\n40.750613794        -73.993434906       \\n40.750353706599995  -73.9929306507      \\n40.6997066969       -73.8085234165      \\n40.750353706599995  -73.9929306507      \\n40.6997066969       -73.8085234165      \\n40.8538124533       -73.8777780533      \\n40.750353706599995  -73.9929306507      \\n40.7422010764       -73.9879953861      \\n40.7359822967       -73.9902806282      \\n40.750353706599995  -73.9929306507      \\n40.6997066969       -73.8085234165      \\n40.7505545          -73.99223017        \\n... (92 total)&quot;}],&quot;genId&quot;:&quot;1482158512&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tableChart'], \n      function(playground, _magictableChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictableChart,\n    \"o\": {\"headers\":[\"_1\",\"_2\"],\"width\":600,\"height\":400}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n        <label for=\"input-anonf9e13d29175332e7572ffc6fcffc9689\">\n      Max Points\n    </label><input id=\"input-anonf9e13d29175332e7572ffc6fcffc9689\" type=\"number\" name=\"input-anonf9e13d29175332e7572ffc6fcffc9689\" data-bind=\"textInput: value, fireChange: true, valueUpdate: 'input'\">\n      <script data-selector=\"#input-anonf9e13d29175332e7572ffc6fcffc9689\" data-this=\"{&quot;valueId&quot;:&quot;anonf9e13d29175332e7572ffc6fcffc9689&quot;,&quot;valueInit&quot;:25}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(\n ['observable', 'knockout'],\n function (Observable, ko) {\n   //console.log(\"-----------\")\n   //console.dir(this);\n   //console.dir(valueId);\n   var obs = Observable.makeObservable(valueId)\n                       .extend({ rateLimit: { //throttle\n                                   timeout: 500,\n                                   method: \"notifyWhenChangesStop\"\n                                 }\n                               }\n                       );\n   ko.applyBindings({\n     value: obs\n   }, this);\n   obs(valueInit);\n }\n)/*]]>*/</script>\n    </input>\n        <p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anonab86231722b582db9505730fda9f2c9a&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> <span style=\"color:red\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anone9bf4048db075da762f6140f997c673c&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n        <div>\n        </div>\n      </div></div>\n              </div></div>\n        </div>\n      </div></div>"
+        "text/html" : "<div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon0a1b597a56fb0ff6dfaadc785f74c6e0&quot;,&quot;dataInit&quot;:[],&quot;genId&quot;:&quot;1492374898&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tabs'], \n      function(playground, _magictabs) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictabs,\n    \"o\": {}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <div>\n        <ul class=\"nav nav-tabs\" id=\"ul1492374898\"><li>\n              <a href=\"#tab1492374898-0\"><i class=\"fa fa-table\"/></a>\n            </li><li>\n              <a href=\"#tab1492374898-1\"><i class=\"fa fa-cubes\"/></a>\n            </li></ul>\n\n        <div class=\"tab-content\" id=\"tab1492374898\"><div class=\"tab-pane\" id=\"tab1492374898-0\">\n            <div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anonfebb9f35277bac38eeebd68218c3f1e4&quot;,&quot;dataInit&quot;:[{&quot;_1&quot;:39,&quot;_2&quot;:&quot;40.7691708833       -73.98161       \\n40.759420158800005  -73.9830281097  &quot;}],&quot;genId&quot;:&quot;1098111406&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tableChart'], \n      function(playground, _magictableChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictableChart,\n    \"o\": {\"headers\":[\"_1\",\"_2\"],\"width\":600,\"height\":400}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <span class=\"chart-total-item-count\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anon2998b88b16c02b6ed426c2ef7f115964&quot;,&quot;initialValue&quot;:&quot;1&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> entries total</span>\n      <span class=\"chart-sampling-warning\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anonf3c4f208546c6b19eab82e66eac996cd&quot;,&quot;initialValue&quot;:&quot;&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n      <div>\n      </div>\n    </div></div>\n            </div><div class=\"tab-pane\" id=\"tab1492374898-1\">\n            <div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon2b8be2c322838517261ad611a0c04557&quot;,&quot;dataInit&quot;:[{&quot;_1&quot;:39,&quot;_2&quot;:&quot;40.7691708833       -73.98161       \\n40.759420158800005  -73.9830281097  &quot;}],&quot;genId&quot;:&quot;834046910&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/pivotChart'], \n      function(playground, _magicpivotChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magicpivotChart,\n    \"o\": {\"width\":600,\"height\":400,\"derivedAttributes\":{},\"extraOptions\":{}}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <span class=\"chart-total-item-count\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anon638d06e9902e0a658db9aa5dfb0b50d3&quot;,&quot;initialValue&quot;:&quot;1&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> entries total</span>\n      <span class=\"chart-sampling-warning\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anonb690ec804e92db989c7bad09069ce789&quot;,&quot;initialValue&quot;:&quot;&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n      <div>\n      </div>\n    </div></div>\n            </div></div>\n      </div>\n    </div></div>"
       },
       "output_type" : "execute_result",
-      "execution_count" : 4
+      "execution_count" : 4,
+      "time" : "Took: 2 seconds 479 milliseconds, at 2016-5-18 22:19"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "3A6EC00724934B6D9C161F2CAA96588C"
+    },
     "cell_type" : "markdown",
     "source" : "# Applying DBSCAN for each user"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "F4E076AAED6B466D81D68FAB5D6FD51A"
     },
     "cell_type" : "code",
     "source" : "import breeze.numerics._\nimport nak.cluster._\nimport nak.cluster.GDBSCAN._",
@@ -139,16 +162,18 @@
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 5
+      "execution_count" : 5,
+      "time" : "Took: 912 milliseconds, at 2016-5-18 22:19"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "184117FD14224BD08DC1785F20F06D56"
     },
     "cell_type" : "code",
-    "source" : "def dbscan(v : breeze.linalg.DenseMatrix[Double]) = {\n\n  val gdbscan = new GDBSCAN(\n    DBSCAN.getNeighbours(epsilon = 0.2, distance = Kmeans.euclideanDistance),\n    DBSCAN.isCorePoint(minPoints = 2)\n  )\n\n  val clusters = gdbscan cluster v\n  \n  // reducing the clusters to bounding boxes\n  // for simplicity: each user could \n  clusters.map(\n    cluster => \n       (cluster.id.toInt, cluster.points.size, \n          cluster.points.map(_.value(0)).min,\n          cluster.points.map(_.value(1)).min,\n          cluster.points.map(_.value(0)).max,\n          cluster.points.map(_.value(1)).max\n        )\n  )\n  \n}",
+    "source" : "def dbscan(v : breeze.linalg.DenseMatrix[Double]) = {\n\n  val gdbscan = new GDBSCAN(\n    DBSCAN.getNeighbours(epsilon = 0.2, distance = Kmeans.euclideanDistance),\n    DBSCAN.isCorePoint(minPoints = 3)\n  )\n\n  val clusters = gdbscan cluster v\n  \n  // reducing the clusters to bounding boxes\n  // for simplicity: each user could \n  clusters.map(\n    cluster => \n       (cluster.id.toInt, cluster.points.size, \n          cluster.points.map(_.value(0)).min,\n          cluster.points.map(_.value(1)).min,\n          cluster.points.map(_.value(0)).max,\n          cluster.points.map(_.value(1)).max\n        )\n  )\n  \n}",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
@@ -159,61 +184,75 @@
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 6
+      "execution_count" : 6,
+      "time" : "Took: 660 milliseconds, at 2016-5-18 22:19"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "645270FED4C2408B9ED8F534C9C6A884"
     },
     "cell_type" : "code",
     "source" : "val safebboxRdd = checkinsRdd.mapValues(dbscan(_))",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "safebboxRdd: org.apache.spark.rdd.RDD[(Long, Seq[(Int, Int, Double, Double, Double, Double)])] = MapPartitionsRDD[10] at mapValues at <console>:72\n"
+      "text" : "safebboxRdd: org.apache.spark.rdd.RDD[(Long, Seq[(Int, Int, Double, Double, Double, Double)])] = MapPartitionsRDD[10] at mapValues at <console>:85\n"
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "MapPartitionsRDD[10] at mapValues at &lt;console&gt;:72"
+        "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 7
+      "execution_count" : 7,
+      "time" : "Took: 591 milliseconds, at 2016-5-18 22:19"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "E57804A73B594EE480EB3165BBC38CF1"
+    },
     "cell_type" : "markdown",
     "source" : "#Clusters for each user "
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "presentation" : {
+        "tabs_state" : "{\n  \"tab_id\": \"#tab1809739640-0\"\n}",
+        "pivot_chart_state" : "{\n  \"hiddenAttributes\": [],\n  \"menuLimit\": 200,\n  \"cols\": [],\n  \"rows\": [],\n  \"vals\": [],\n  \"exclusions\": {},\n  \"inclusions\": {},\n  \"unusedAttrsVertical\": 85,\n  \"autoSortUnusedAttrs\": false,\n  \"inclusionsInfo\": {},\n  \"aggregatorName\": \"Count\",\n  \"rendererName\": \"Table\"\n}"
+      },
+      "id" : "DD3A624397D14FE98FC1E525FEB0CB7B"
     },
     "cell_type" : "code",
     "source" : "safebboxRdd.take(25)",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "res5: Array[(Long, Seq[(Int, Int, Double, Double, Double, Double)])] = Array((15474,Vector((0,23,40.6997066969,-73.8777780533,40.8538124533,-73.70209875), (2,69,40.5732845667,-74.0161155,40.826946067,-73.92811775210001))), (113843,Vector()), (76360,Vector((0,84,40.6431545593,-74.0749740601,40.8117304816,-73.7897526868), (19,1,40.8851132667,-73.8264513833,40.8851132667,-73.8264513833))), (84754,Vector((0,3,40.7472183976,-73.9861557874,40.766764252600005,-73.9263935647))), (60527,Vector((0,3,40.75593585,-73.9817627066,40.7652732911,-73.9677998833))), (72685,Vector()), (46077,Vector()), (13278,Vector((0,3,40.7283157331,-74.02774505,40.75872335,-73.9822125435))), (31291,Vector()), (45690,Vector((0,3,40.74137425,-74.06486165,40.7867387073,-73.9881052167))), (4926,Vector((0,24,40.7160034661,-..."
+      "text" : "res12: Array[(Long, Seq[(Int, Int, Double, Double, Double, Double)])] = Array((39,Vector()), (41,Vector()), (34,Vector((0,5,40.63947755,-73.7873357833,40.6438845363,-73.78280639649999), (1,25,40.675905688,-74.00566059,40.7674644764,-73.9771938))), (52,Vector((0,7,40.6438845363,-73.9965448833,40.776349286599995,-73.78280639649999))), (15,Vector((0,38,40.739219899999995,-74.00933688,40.7607320299,-73.9723638333), (28,3,40.6438845363,-73.78280639649999,40.6438845363,-73.78280639649999))), (21,Vector()), (16,Vector((0,41,40.6756762829,-74.005998373,40.7657915879,-73.9406308333))), (22,Vector((0,1455,40.6654865824,-74.0359532833,40.8785994085,-73.8576936667), (6,32,40.6430053298,-73.7839355374,40.6469291063,-73.7730646133), (40,2,40.6912468675,-74.1795158386,40.6912468675,-74.1795158386))), ..."
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "<div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anone65689068327a01c4064e9128679028b&quot;,&quot;dataInit&quot;:[{&quot;_1&quot;:15474,&quot;_2&quot;:[&quot;(0,23,40.6997066969,-73.8777780533,40.8538124533,-73.70209875)&quot;,&quot;(2,69,40.5732845667,-74.0161155,40.826946067,-73.92811775210001)&quot;]},{&quot;_1&quot;:113843,&quot;_2&quot;:[]},{&quot;_1&quot;:76360,&quot;_2&quot;:[&quot;(0,84,40.6431545593,-74.0749740601,40.8117304816,-73.7897526868)&quot;,&quot;(19,1,40.8851132667,-73.8264513833,40.8851132667,-73.8264513833)&quot;]},{&quot;_1&quot;:84754,&quot;_2&quot;:[&quot;(0,3,40.7472183976,-73.9861557874,40.766764252600005,-73.9263935647)&quot;]},{&quot;_1&quot;:60527,&quot;_2&quot;:[&quot;(0,3,40.75593585,-73.9817627066,40.7652732911,-73.9677998833)&quot;]},{&quot;_1&quot;:72685,&quot;_2&quot;:[]},{&quot;_1&quot;:46077,&quot;_2&quot;:[]},{&quot;_1&quot;:13278,&quot;_2&quot;:[&quot;(0,3,40.7283157331,-74.02774505,40.75872335,-73.9822125435)&quot;]},{&quot;_1&quot;:31291,&quot;_2&quot;:[]},{&quot;_1&quot;:45690,&quot;_2&quot;:[&quot;(0,3,40.74137425,-74.06486165,40.7867387073,-73.9881052167)&quot;]},{&quot;_1&quot;:4926,&quot;_2&quot;:[&quot;(0,24,40.7160034661,-74.01014606529999,40.7652732911,-73.95958584)&quot;]},{&quot;_1&quot;:32170,&quot;_2&quot;:[&quot;(0,4,40.66920345,-74.1839160333,40.7564238408,-73.9864705503)&quot;,&quot;(3,2,40.56807455,-74.19539451600001,40.634994248299996,-74.19127136670001)&quot;]},{&quot;_1&quot;:123078,&quot;_2&quot;:[&quot;(0,3,40.71794945,-74.03620952,40.731171999999994,-74.009889)&quot;]},{&quot;_1&quot;:15594,&quot;_2&quot;:[&quot;(0,139,40.646198072,-73.99497449399999,40.75016772,-73.899101083)&quot;,&quot;(86,1,40.800805700000005,-73.7934041,40.800805700000005,-73.7934041)&quot;]},{&quot;_1&quot;:100571,&quot;_2&quot;:[]},{&quot;_1&quot;:151517,&quot;_2&quot;:[&quot;(0,12,40.7101211548,-74.0092010498,40.7358847426,-73.9844334126)&quot;]},{&quot;_1&quot;:5384,&quot;_2&quot;:[&quot;(0,47,40.7111608594,-74.00876587569999,40.77525365,-73.8720059395)&quot;]},{&quot;_1&quot;:52869,&quot;_2&quot;:[&quot;(0,6,40.6915673333,-73.9988958836,40.7208271761,-73.9814992667)&quot;]},{&quot;_1&quot;:161980,&quot;_2&quot;:[]},{&quot;_1&quot;:52939,&quot;_2&quot;:[&quot;(0,26,40.7192090168,-74.0060305595,40.80836995,-73.943892838)&quot;]},{&quot;_1&quot;:28333,&quot;_2&quot;:[&quot;(0,8,40.6611307472,-74.17168098479999,40.88449084,-73.9774167538)&quot;,&quot;(1,2,40.9148939833,-74.0593707333,40.9148939833,-74.0593707333)&quot;]},{&quot;_1&quot;:183535,&quot;_2&quot;:[]},{&quot;_1&quot;:4839,&quot;_2&quot;:[&quot;(0,15,40.70721572,-74.0707898945,40.7322246833,-74.0105581167)&quot;]},{&quot;_1&quot;:28409,&quot;_2&quot;:[&quot;(0,3,40.7627392398,-73.9875724254,40.7628659245,-73.9873838425)&quot;]},{&quot;_1&quot;:149099,&quot;_2&quot;:[]}],&quot;genId&quot;:&quot;1606055096&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tabs'], \n      function(playground, _magictabs) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictabs,\n    \"o\": {}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n        <label for=\"input-anona23dc9fae4e2fcedd9a871288436bcc4\">\n      Max Points (controlling all tabs)\n    </label><input id=\"input-anona23dc9fae4e2fcedd9a871288436bcc4\" type=\"number\" name=\"input-anona23dc9fae4e2fcedd9a871288436bcc4\" data-bind=\"textInput: value, fireChange: true, valueUpdate: 'input'\">\n      <script data-selector=\"#input-anona23dc9fae4e2fcedd9a871288436bcc4\" data-this=\"{&quot;valueId&quot;:&quot;anona23dc9fae4e2fcedd9a871288436bcc4&quot;,&quot;valueInit&quot;:25}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(\n ['observable', 'knockout'],\n function (Observable, ko) {\n   //console.log(\"-----------\")\n   //console.dir(this);\n   //console.dir(valueId);\n   var obs = Observable.makeObservable(valueId)\n                       .extend({ rateLimit: { //throttle\n                                   timeout: 500,\n                                   method: \"notifyWhenChangesStop\"\n                                 }\n                               }\n                       );\n   ko.applyBindings({\n     value: obs\n   }, this);\n   obs(valueInit);\n }\n)/*]]>*/</script>\n    </input>\n        <div>\n          <ul class=\"nav nav-tabs\" id=\"ul1606055096\"><li>\n                <a href=\"#tab1606055096-0\"><i class=\"fa fa-table\"/></a>\n              </li></ul>\n\n          <div class=\"tab-content\" id=\"tab1606055096\"><div class=\"tab-pane\" id=\"tab1606055096-0\">\n              <div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon125e9fbb5935dac8355500f63033f10c&quot;,&quot;dataInit&quot;:[{&quot;_1&quot;:15474,&quot;_2&quot;:[&quot;(0,23,40.6997066969,-73.8777780533,40.8538124533,-73.70209875)&quot;,&quot;(2,69,40.5732845667,-74.0161155,40.826946067,-73.92811775210001)&quot;]},{&quot;_1&quot;:113843,&quot;_2&quot;:[]},{&quot;_1&quot;:76360,&quot;_2&quot;:[&quot;(0,84,40.6431545593,-74.0749740601,40.8117304816,-73.7897526868)&quot;,&quot;(19,1,40.8851132667,-73.8264513833,40.8851132667,-73.8264513833)&quot;]},{&quot;_1&quot;:84754,&quot;_2&quot;:[&quot;(0,3,40.7472183976,-73.9861557874,40.766764252600005,-73.9263935647)&quot;]},{&quot;_1&quot;:60527,&quot;_2&quot;:[&quot;(0,3,40.75593585,-73.9817627066,40.7652732911,-73.9677998833)&quot;]},{&quot;_1&quot;:72685,&quot;_2&quot;:[]},{&quot;_1&quot;:46077,&quot;_2&quot;:[]},{&quot;_1&quot;:13278,&quot;_2&quot;:[&quot;(0,3,40.7283157331,-74.02774505,40.75872335,-73.9822125435)&quot;]},{&quot;_1&quot;:31291,&quot;_2&quot;:[]},{&quot;_1&quot;:45690,&quot;_2&quot;:[&quot;(0,3,40.74137425,-74.06486165,40.7867387073,-73.9881052167)&quot;]},{&quot;_1&quot;:4926,&quot;_2&quot;:[&quot;(0,24,40.7160034661,-74.01014606529999,40.7652732911,-73.95958584)&quot;]},{&quot;_1&quot;:32170,&quot;_2&quot;:[&quot;(0,4,40.66920345,-74.1839160333,40.7564238408,-73.9864705503)&quot;,&quot;(3,2,40.56807455,-74.19539451600001,40.634994248299996,-74.19127136670001)&quot;]},{&quot;_1&quot;:123078,&quot;_2&quot;:[&quot;(0,3,40.71794945,-74.03620952,40.731171999999994,-74.009889)&quot;]},{&quot;_1&quot;:15594,&quot;_2&quot;:[&quot;(0,139,40.646198072,-73.99497449399999,40.75016772,-73.899101083)&quot;,&quot;(86,1,40.800805700000005,-73.7934041,40.800805700000005,-73.7934041)&quot;]},{&quot;_1&quot;:100571,&quot;_2&quot;:[]},{&quot;_1&quot;:151517,&quot;_2&quot;:[&quot;(0,12,40.7101211548,-74.0092010498,40.7358847426,-73.9844334126)&quot;]},{&quot;_1&quot;:5384,&quot;_2&quot;:[&quot;(0,47,40.7111608594,-74.00876587569999,40.77525365,-73.8720059395)&quot;]},{&quot;_1&quot;:52869,&quot;_2&quot;:[&quot;(0,6,40.6915673333,-73.9988958836,40.7208271761,-73.9814992667)&quot;]},{&quot;_1&quot;:161980,&quot;_2&quot;:[]},{&quot;_1&quot;:52939,&quot;_2&quot;:[&quot;(0,26,40.7192090168,-74.0060305595,40.80836995,-73.943892838)&quot;]},{&quot;_1&quot;:28333,&quot;_2&quot;:[&quot;(0,8,40.6611307472,-74.17168098479999,40.88449084,-73.9774167538)&quot;,&quot;(1,2,40.9148939833,-74.0593707333,40.9148939833,-74.0593707333)&quot;]},{&quot;_1&quot;:183535,&quot;_2&quot;:[]},{&quot;_1&quot;:4839,&quot;_2&quot;:[&quot;(0,15,40.70721572,-74.0707898945,40.7322246833,-74.0105581167)&quot;]},{&quot;_1&quot;:28409,&quot;_2&quot;:[&quot;(0,3,40.7627392398,-73.9875724254,40.7628659245,-73.9873838425)&quot;]},{&quot;_1&quot;:149099,&quot;_2&quot;:[]}],&quot;genId&quot;:&quot;97355916&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tableChart'], \n      function(playground, _magictableChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictableChart,\n    \"o\": {\"headers\":[\"_1\",\"_2\"],\"width\":600,\"height\":400}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n        <label for=\"input-anon1371bbd0641f3ea150218b4af738206b\">\n      Max Points\n    </label><input id=\"input-anon1371bbd0641f3ea150218b4af738206b\" type=\"number\" name=\"input-anon1371bbd0641f3ea150218b4af738206b\" data-bind=\"textInput: value, fireChange: true, valueUpdate: 'input'\">\n      <script data-selector=\"#input-anon1371bbd0641f3ea150218b4af738206b\" data-this=\"{&quot;valueId&quot;:&quot;anon1371bbd0641f3ea150218b4af738206b&quot;,&quot;valueInit&quot;:25}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(\n ['observable', 'knockout'],\n function (Observable, ko) {\n   //console.log(\"-----------\")\n   //console.dir(this);\n   //console.dir(valueId);\n   var obs = Observable.makeObservable(valueId)\n                       .extend({ rateLimit: { //throttle\n                                   timeout: 500,\n                                   method: \"notifyWhenChangesStop\"\n                                 }\n                               }\n                       );\n   ko.applyBindings({\n     value: obs\n   }, this);\n   obs(valueInit);\n }\n)/*]]>*/</script>\n    </input>\n        <p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anon79c9e90af1dd074fd8b3f1b8e0878948&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> <span style=\"color:red\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anon2003c5d4778fdb3d11f1acdfad1ec8eb&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n        <div>\n        </div>\n      </div></div>\n              </div></div>\n        </div>\n      </div></div>"
+        "text/html" : "<div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anon9bd1f55daf7ef307f2f5c76aa8129241&quot;,&quot;dataInit&quot;:[],&quot;genId&quot;:&quot;1809739640&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tabs'], \n      function(playground, _magictabs) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictabs,\n    \"o\": {}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <div>\n        <ul class=\"nav nav-tabs\" id=\"ul1809739640\"><li>\n              <a href=\"#tab1809739640-0\"><i class=\"fa fa-table\"/></a>\n            </li><li>\n              <a href=\"#tab1809739640-1\"><i class=\"fa fa-cubes\"/></a>\n            </li></ul>\n\n        <div class=\"tab-content\" id=\"tab1809739640\"><div class=\"tab-pane\" id=\"tab1809739640-0\">\n            <div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anoncf942736f8e0442e07c7fc5622982a59&quot;,&quot;dataInit&quot;:[{&quot;_1&quot;:39,&quot;_2&quot;:[]},{&quot;_1&quot;:41,&quot;_2&quot;:[]},{&quot;_1&quot;:34,&quot;_2&quot;:[&quot;(0,5,40.63947755,-73.7873357833,40.6438845363,-73.78280639649999)&quot;,&quot;(1,25,40.675905688,-74.00566059,40.7674644764,-73.9771938)&quot;]},{&quot;_1&quot;:52,&quot;_2&quot;:[&quot;(0,7,40.6438845363,-73.9965448833,40.776349286599995,-73.78280639649999)&quot;]},{&quot;_1&quot;:15,&quot;_2&quot;:[&quot;(0,38,40.739219899999995,-74.00933688,40.7607320299,-73.9723638333)&quot;,&quot;(28,3,40.6438845363,-73.78280639649999,40.6438845363,-73.78280639649999)&quot;]},{&quot;_1&quot;:21,&quot;_2&quot;:[]},{&quot;_1&quot;:16,&quot;_2&quot;:[&quot;(0,41,40.6756762829,-74.005998373,40.7657915879,-73.9406308333)&quot;]},{&quot;_1&quot;:22,&quot;_2&quot;:[&quot;(0,1455,40.6654865824,-74.0359532833,40.8785994085,-73.8576936667)&quot;,&quot;(6,32,40.6430053298,-73.7839355374,40.6469291063,-73.7730646133)&quot;,&quot;(40,2,40.6912468675,-74.1795158386,40.6912468675,-74.1795158386)&quot;]},{&quot;_1&quot;:35,&quot;_2&quot;:[&quot;(0,66,40.6891968241,-74.0445041656,40.793790445999996,-73.8720059395)&quot;,&quot;(66,4,40.687276885,-74.1826701164,40.6912468675,-74.16603177)&quot;]},{&quot;_1&quot;:27,&quot;_2&quot;:[]},{&quot;_1&quot;:0,&quot;_2&quot;:[&quot;(1,25,40.705823135,-74.0119528667,40.780805463200004,-73.9630830288)&quot;]},{&quot;_1&quot;:36,&quot;_2&quot;:[]},{&quot;_1&quot;:40,&quot;_2&quot;:[&quot;(0,57,40.6438845363,-74.0096315269,40.7843213833,-73.78280639649999)&quot;]},{&quot;_1&quot;:8,&quot;_2&quot;:[&quot;(0,3,40.7319546167,-74.00378865,40.74137425,-73.9838675167)&quot;]},{&quot;_1&quot;:20,&quot;_2&quot;:[&quot;(0,3,40.6912468675,-74.1795158386,40.7458101407,-73.9868685297)&quot;,&quot;(1,5,40.7588019632,-73.9867480977,40.7634210141,-73.9775025845)&quot;]},{&quot;_1&quot;:44,&quot;_2&quot;:[&quot;(0,6,40.74137425,-73.9881052167,40.7745781069,-73.8658475876)&quot;]},{&quot;_1&quot;:5,&quot;_2&quot;:[&quot;(0,5,40.7563951,-73.9868709323,40.7637712634,-73.9777493477)&quot;]}],&quot;genId&quot;:&quot;1841774373&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/tableChart'], \n      function(playground, _magictableChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magictableChart,\n    \"o\": {\"headers\":[\"_1\",\"_2\"],\"width\":600,\"height\":400}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <span class=\"chart-total-item-count\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anond2a8cc379c6ee8f6562396618df679f3&quot;,&quot;initialValue&quot;:&quot;17&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> entries total</span>\n      <span class=\"chart-sampling-warning\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anon47cb27dea6206e806eb43ed663bf0b86&quot;,&quot;initialValue&quot;:&quot;&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n      <div>\n      </div>\n    </div></div>\n            </div><div class=\"tab-pane\" id=\"tab1809739640-1\">\n            <div>\n      <script data-this=\"{&quot;dataId&quot;:&quot;anone03d72c8666d2a36e9f945cf6514e3e9&quot;,&quot;dataInit&quot;:[{&quot;_1&quot;:39,&quot;_2&quot;:[]},{&quot;_1&quot;:41,&quot;_2&quot;:[]},{&quot;_1&quot;:34,&quot;_2&quot;:[&quot;(0,5,40.63947755,-73.7873357833,40.6438845363,-73.78280639649999)&quot;,&quot;(1,25,40.675905688,-74.00566059,40.7674644764,-73.9771938)&quot;]},{&quot;_1&quot;:52,&quot;_2&quot;:[&quot;(0,7,40.6438845363,-73.9965448833,40.776349286599995,-73.78280639649999)&quot;]},{&quot;_1&quot;:15,&quot;_2&quot;:[&quot;(0,38,40.739219899999995,-74.00933688,40.7607320299,-73.9723638333)&quot;,&quot;(28,3,40.6438845363,-73.78280639649999,40.6438845363,-73.78280639649999)&quot;]},{&quot;_1&quot;:21,&quot;_2&quot;:[]},{&quot;_1&quot;:16,&quot;_2&quot;:[&quot;(0,41,40.6756762829,-74.005998373,40.7657915879,-73.9406308333)&quot;]},{&quot;_1&quot;:22,&quot;_2&quot;:[&quot;(0,1455,40.6654865824,-74.0359532833,40.8785994085,-73.8576936667)&quot;,&quot;(6,32,40.6430053298,-73.7839355374,40.6469291063,-73.7730646133)&quot;,&quot;(40,2,40.6912468675,-74.1795158386,40.6912468675,-74.1795158386)&quot;]},{&quot;_1&quot;:35,&quot;_2&quot;:[&quot;(0,66,40.6891968241,-74.0445041656,40.793790445999996,-73.8720059395)&quot;,&quot;(66,4,40.687276885,-74.1826701164,40.6912468675,-74.16603177)&quot;]},{&quot;_1&quot;:27,&quot;_2&quot;:[]},{&quot;_1&quot;:0,&quot;_2&quot;:[&quot;(1,25,40.705823135,-74.0119528667,40.780805463200004,-73.9630830288)&quot;]},{&quot;_1&quot;:36,&quot;_2&quot;:[]},{&quot;_1&quot;:40,&quot;_2&quot;:[&quot;(0,57,40.6438845363,-74.0096315269,40.7843213833,-73.78280639649999)&quot;]},{&quot;_1&quot;:8,&quot;_2&quot;:[&quot;(0,3,40.7319546167,-74.00378865,40.74137425,-73.9838675167)&quot;]},{&quot;_1&quot;:20,&quot;_2&quot;:[&quot;(0,3,40.6912468675,-74.1795158386,40.7458101407,-73.9868685297)&quot;,&quot;(1,5,40.7588019632,-73.9867480977,40.7634210141,-73.9775025845)&quot;]},{&quot;_1&quot;:44,&quot;_2&quot;:[&quot;(0,6,40.74137425,-73.9881052167,40.7745781069,-73.8658475876)&quot;]},{&quot;_1&quot;:5,&quot;_2&quot;:[&quot;(0,5,40.7563951,-73.9868709323,40.7637712634,-73.9777493477)&quot;]}],&quot;genId&quot;:&quot;1093747686&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/req(['../javascripts/notebook/playground','../javascripts/notebook/magic/pivotChart'], \n      function(playground, _magicpivotChart) {\n        // data ==> data-this (in observable.js's scopedEval) ==> this in JS => { dataId, dataInit, ... }\n        // this ==> scope (in observable.js's scopedEval) ==> this.parentElement ==> div.container below (toHtml)\n\n        playground.call(data,\n                        this\n                        ,\n                        {\n    \"f\": _magicpivotChart,\n    \"o\": {\"width\":600,\"height\":400,\"derivedAttributes\":{},\"extraOptions\":{}}\n  }\n  \n                        \n                        \n                      );\n      }\n    );/*]]>*/</script>\n    <div>\n      <span class=\"chart-total-item-count\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anone7b1697874f969c0d033111764942592&quot;,&quot;initialValue&quot;:&quot;17&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p> entries total</span>\n      <span class=\"chart-sampling-warning\"><p data-bind=\"text: value\"><script data-this=\"{&quot;valueId&quot;:&quot;anond341c21247b7f2f765dd274a894d4867&quot;,&quot;initialValue&quot;:&quot;&quot;}\" type=\"text/x-scoped-javascript\">/*<![CDATA[*/\nreq(\n['observable', 'knockout'],\nfunction (O, ko) {\n  ko.applyBindings({\n      value: O.makeObservable(valueId, initialValue)\n    },\n    this\n  );\n});\n        /*]]>*/</script></p></span>\n      <div>\n      </div>\n    </div></div>\n            </div></div>\n      </div>\n    </div></div>"
       },
       "output_type" : "execute_result",
-      "execution_count" : 8
+      "execution_count" : 8,
+      "time" : "Took: 33 seconds 304 milliseconds, at 2016-5-18 22:20"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "29D59F9900844B5E896D11855DF89E3D"
+    },
     "cell_type" : "markdown",
     "source" : "#Storing the model back in Cassandra"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "A2A55FB7FC6B40A4931A0A56BD0E5CDC"
     },
     "cell_type" : "code",
     "source" : "case class CheckinCluster(\n  uid:    Long,\n  ts:     org.joda.time.DateTime,\n  cid:    Int,\n  count:  Int, \n  latmin: Double,\n  lonmin: Double,\n  latmax: Double,\n  lonmax: Double\n)",
@@ -227,33 +266,37 @@
         "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 9
+      "execution_count" : 9,
+      "time" : "Took: 503 milliseconds, at 2016-5-18 22:20"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "5D3C8369F459488D8107093731CD5B6F"
     },
     "cell_type" : "code",
     "source" : "import org.joda.time.DateTime\nimport org.joda.time.DateTimeZone\n\nval now = new DateTime(DateTimeZone.UTC);\nval c = CheckinCluster(1,now, 12, 42, 1.2, 1.4, 3.6, 7.9)\n",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "import org.joda.time.DateTime\nimport org.joda.time.DateTimeZone\nnow: org.joda.time.DateTime = 2015-12-16T15:03:44.069Z\nc: CheckinCluster = CheckinCluster(1,2015-12-16T15:03:44.069Z,12,42,1.2,1.4,3.6,7.9)\n"
+      "text" : "import org.joda.time.DateTime\nimport org.joda.time.DateTimeZone\nnow: org.joda.time.DateTime = 2016-05-18T20:20:47.527Z\nc: CheckinCluster = CheckinCluster(1,2016-05-18T20:20:47.527Z,12,42,1.2,1.4,3.6,7.9)\n"
     }, {
       "metadata" : { },
       "data" : {
-        "text/html" : "CheckinCluster(1,2015-12-16T15:03:44.069Z,12,42,1.2,1.4,3.6,7.9)"
+        "text/html" : ""
       },
       "output_type" : "execute_result",
-      "execution_count" : 10
+      "execution_count" : 10,
+      "time" : "Took: 446 milliseconds, at 2016-5-18 22:20"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "5DD2C05FBCCC47659E9EFB4026D43FB5"
     },
     "cell_type" : "code",
     "source" : "val collection = sc.parallelize(Seq(c))\ncollection.saveToCassandra(\"lbsn\", \"checkins_clusters\")\n                                ",
@@ -270,14 +313,17 @@
       "execution_count" : 11
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "9CFC3D82A7424977803D7B9D197D56FC"
+    },
     "cell_type" : "markdown",
     "source" : "#Storing all clusters for all users"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "5EFBE13DB71043BE9F2F65974B68E82A"
     },
     "cell_type" : "code",
     "source" : "val now = new DateTime(DateTimeZone.UTC);\n\n// flatten the clusters for each uid in multiple CheckinCluster objects\nval collection = safebboxRdd.flatMap(\n                   u => u._2.map(c => CheckinCluster(u._1, now, c._1, c._2, c._3, c._4, c._5, c._6))\n                 ).cache() ",
@@ -297,67 +343,56 @@
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "1AA3A9C2BF9346F6B6B4B57E6BA90F24"
     },
     "cell_type" : "code",
     "source" : "collection.saveToCassandra(\"lbsn\", \"checkins_clusters\")",
     "outputs" : [ {
-      "metadata" : { },
-      "data" : {
-        "text/html" : ""
-      },
-      "output_type" : "execute_result",
-      "execution_count" : 14
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "<console>:81: error: object saveToCassandra is not a member of package collection\n              collection.saveToCassandra(\"lbsn\", \"checkins_clusters\")\n                         ^\n"
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "C99BD9BF31B84CEF894DFE9A150DD4D6"
+    },
     "cell_type" : "markdown",
     "source" : "#Fetching the model\nGiven a specific uid, fetching the model is a two step query. First check which is the latest timestamp associated with the model, then extract all rows with the same uid, and timestamp. By doing so, we will have all the clusters associated with a given uid."
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "B4A02AB87E61407BBD1B6C0B44DCCD71"
     },
     "cell_type" : "code",
     "source" : "// fetching the lastest model, is a two-step query\n\nval df = csc.sql(\"SELECT ts FROM lbsn.checkins_clusters WHERE uid=15474 ORDER BY ts DESC LIMIT 1\")\nval last_ts = new DateTime(df.head(1)(0)(0), DateTimeZone.UTC).toString",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "df: org.apache.spark.sql.DataFrame = [ts: timestamp]\nlast_ts: String = 2015-12-16T15:04:17.388Z\n"
-    }, {
-      "metadata" : { },
-      "data" : {
-        "text/html" : "2015-12-16T15:04:17.388Z"
-      },
-      "output_type" : "execute_result",
-      "execution_count" : 15
+      "text" : "java.lang.ArrayIndexOutOfBoundsException: 0\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:86)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:94)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:96)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:98)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:100)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:102)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:104)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:106)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:108)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:110)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:112)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:114)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:116)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:118)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:120)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:122)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:124)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:126)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:128)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:130)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:132)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:134)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:136)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:138)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:140)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:142)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:144)\n\tat $iwC$$iwC$$iwC$$iwC$$iwC.<init>(<console>:146)\n\tat $iwC$$iwC$$iwC$$iwC.<init>(<console>:148)\n\tat $iwC$$iwC$$iwC.<init>(<console>:150)\n\tat $iwC$$iwC.<init>(<console>:152)\n\tat $iwC.<init>(<console>:154)\n\tat <init>(<console>:156)\n\tat .<init>(<console>:160)\n\tat .<clinit>(<console>)\n\tat .<init>(<console>:7)\n\tat .<clinit>(<console>)\n\tat $print(<console>)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat java.lang.reflect.Method.invoke(Method.java:498)\n\tat org.apache.spark.repl.SparkIMain$ReadEvalPrint.call(SparkIMain.scala:1065)\n\tat org.apache.spark.repl.SparkIMain$Request.loadAndRun(SparkIMain.scala:1346)\n\tat org.apache.spark.repl.SparkIMain.loadAndRunReq$1(SparkIMain.scala:840)\n\tat org.apache.spark.repl.SparkIMain.interpret(SparkIMain.scala:871)\n\tat org.apache.spark.repl.SparkIMain.interpret(SparkIMain.scala:819)\n\tat notebook.kernel.Repl$$anonfun$6.apply(Repl.scala:202)\n\tat notebook.kernel.Repl$$anonfun$6.apply(Repl.scala:202)\n\tat scala.util.DynamicVariable.withValue(DynamicVariable.scala:57)\n\tat scala.Console$.withOut(Console.scala:126)\n\tat notebook.kernel.Repl.evaluate(Repl.scala:201)\n\tat notebook.client.ReplCalculator$$anonfun$10$$anon$1$$anonfun$27.replEvaluate$1(ReplCalculator.scala:402)\n\tat notebook.client.ReplCalculator$$anonfun$10$$anon$1$$anonfun$27.apply(ReplCalculator.scala:415)\n\tat notebook.client.ReplCalculator$$anonfun$10$$anon$1$$anonfun$27.apply(ReplCalculator.scala:396)\n\tat scala.concurrent.impl.Future$PromiseCompletingRunnable.liftedTree1$1(Future.scala:24)\n\tat scala.concurrent.impl.Future$PromiseCompletingRunnable.run(Future.scala:24)\n\tat akka.dispatch.TaskInvocation.run(AbstractDispatcher.scala:40)\n\tat akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinTask.exec(AbstractDispatcher.scala:397)\n\tat scala.concurrent.forkjoin.ForkJoinTask.doExec(ForkJoinTask.java:260)\n\tat scala.concurrent.forkjoin.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1339)\n\tat scala.concurrent.forkjoin.ForkJoinPool.runWorker(ForkJoinPool.java:1979)\n\tat scala.concurrent.forkjoin.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:107)\n\n"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "D38BA7674C40459886E142E17E736CE6"
     },
     "cell_type" : "code",
     "source" : "val select_model = \"SELECT * FROM lbsn.checkins_clusters WHERE uid=15474 and ts='\"+ last_ts+\"'\"",
     "outputs" : [ {
       "name" : "stdout",
       "output_type" : "stream",
-      "text" : "select_model: String = SELECT * FROM lbsn.checkins_clusters WHERE uid=15474 and ts='2015-12-16T15:04:17.388Z'\n"
-    }, {
-      "metadata" : { },
-      "data" : {
-        "text/html" : "SELECT * FROM lbsn.checkins_clusters WHERE uid=15474 and ts='2015-12-16T15:04:17.388Z'"
-      },
-      "output_type" : "execute_result",
-      "execution_count" : 16
+      "text" : "<console>:79: error: not found: value last_ts\n       val select_model = \"SELECT * FROM lbsn.checkins_clusters WHERE uid=15474 and ts='\"+ last_ts+\"'\"\n                                                                                           ^\n"
     } ]
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "6A52E3E950D44656AAE8F17E15900471"
     },
     "cell_type" : "code",
     "source" : "val df = csc.sql(select_model)\ndf.show(10, false)",
@@ -374,14 +409,17 @@
       "execution_count" : 17
     } ]
   }, {
-    "metadata" : { },
+    "metadata" : {
+      "id" : "804B234E70F74BDD9450EE8AD9B3DEC4"
+    },
     "cell_type" : "markdown",
     "source" : "# Model history\nModel history is preserved, that means that you can always roll back to a previous model"
   }, {
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : false
+      "collapsed" : false,
+      "id" : "AE4DF1C0DAB2475DA4AC343C334E3C09"
     },
     "cell_type" : "code",
     "source" : "val df = csc.sql(\"SELECT * FROM lbsn.checkins_clusters WHERE uid=15474 ORDER BY ts DESC\")\ndf.show(10, false)",
@@ -401,7 +439,8 @@
     "metadata" : {
       "trusted" : true,
       "input_collapsed" : false,
-      "collapsed" : true
+      "collapsed" : true,
+      "id" : "13FF8F922C0745D1965E556116C42DE8"
     },
     "cell_type" : "code",
     "source" : "",
